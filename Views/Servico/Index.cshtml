@@ -1,0 +1,143 @@
+﻿@model IEnumerable<BrasaBot.Models.Servico>
+
+@{
+    ViewData["Title"] = "Consultar Serviços";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="mb-0">Consultar Serviços</h2>
+        <small class="text-muted">Gerencie o cadastro de serviços.</small>
+    </div>
+</div>
+
+@if (TempData["Sucesso"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Sucesso"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="row g-2 mb-3 align-items-center">
+    <div class="col-md-8">
+        <form method="get" asp-action="Index">
+            <div class="input-group">
+                <input type="text" name="busca" value="@ViewBag.Busca" class="form-control"
+                       placeholder="Buscar por nome..." />
+                <button class="btn btn-dark" type="submit">
+                    <i class="bi bi-search"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+    <div class="col-md-4 text-end">
+        <a asp-action="Create" class="btn btn-dark" title="Novo">
+            <i class="bi bi-plus-lg"></i>
+        </a>
+        <button type="button" id="btnEditar" class="btn btn-dark" title="Editar" disabled>
+            <i class="bi bi-pencil"></i>
+        </button>
+        <button type="button" id="btnExcluir" class="btn btn-dark" title="Excluir" disabled
+                data-bs-toggle="modal" data-bs-target="#modalExcluir">
+            <i class="bi bi-trash"></i>
+        </button>
+    </div>
+</div>
+
+<table class="table table-hover align-middle" id="tabelaServicos">
+    <thead class="table-light">
+        <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>Ativo</th>
+            <th>Valor</th>
+            <th class="text-center">Detalhes</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (!Model.Any())
+        {
+            <tr>
+                <td colspan="5" class="text-center text-muted">Nenhum serviço encontrado.</td>
+            </tr>
+        }
+        else
+        {
+            foreach (var s in Model)
+            {
+                <tr data-id="@s.Id" data-nome="@s.Nome">
+                    <td>@s.Id</td>
+                    <td>@s.Nome</td>
+                    <td>@(s.Ativo ? "Sim" : "Não")</td>
+                    <td>@s.Valor.ToString("C")</td>
+                    <td class="text-center">
+                        <a asp-action="Details" asp-route-id="@s.Id"
+                           class="btn btn-sm btn-outline-dark"
+                           onclick="event.stopPropagation();" title="Detalhes">
+                            <i class="bi bi-info-circle"></i>
+                        </a>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+<div class="modal fade" id="modalExcluir" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center py-4">
+                <p class="mb-3">Deseja excluir o cadastro selecionado?</p>
+                <p class="fw-bold" id="nomeExcluir"></p>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-lg"></i> Cancelar
+                </button>
+                <form asp-action="Delete" method="post" id="formExcluir">
+                    <input type="hidden" name="id" id="idExcluir" />
+                    <button type="submit" class="btn btn-dark">
+                        <i class="bi bi-check-lg"></i> Confirmar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        var linhaSelecionada = null;
+        var btnEditar = document.getElementById('btnEditar');
+        var btnExcluir = document.getElementById('btnExcluir');
+        var tabela = document.getElementById('tabelaServicos');
+
+        tabela.querySelectorAll('tbody tr[data-id]').forEach(function (linha) {
+            linha.addEventListener('click', function () {
+                tabela.querySelectorAll('tbody tr').forEach(function (l) {
+                    l.classList.remove('linha-selecionada');
+                });
+                linha.classList.add('linha-selecionada');
+                linhaSelecionada = linha;
+                btnEditar.disabled = false;
+                btnExcluir.disabled = false;
+            });
+        });
+
+        btnEditar.addEventListener('click', function () {
+            if (linhaSelecionada) {
+                var id = linhaSelecionada.getAttribute('data-id');
+                window.location.href = '/Servico/Edit/' + id;
+            }
+        });
+
+        var modalExcluir = document.getElementById('modalExcluir');
+        modalExcluir.addEventListener('show.bs.modal', function () {
+            if (linhaSelecionada) {
+                document.getElementById('idExcluir').value = linhaSelecionada.getAttribute('data-id');
+                document.getElementById('nomeExcluir').textContent = linhaSelecionada.getAttribute('data-nome');
+            }
+        });
+    </script>
+}

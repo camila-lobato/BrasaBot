@@ -1,0 +1,68 @@
+﻿@model BrasaBot.ViewModels.InsumoViewModel
+
+@{
+    ViewData["Title"] = "Cadastrar Insumo";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="mb-0">Cadastrar Insumo</h2>
+        <small class="text-muted">Gerencie os cadastros de insumos.</small>
+    </div>
+    <a asp-action="Index" class="btn btn-outline-dark">
+        <i class="bi bi-arrow-left"></i> Voltar
+    </a>
+</div>
+
+<form asp-action="Create" method="post" class="card p-4">
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+    <div class="row g-3">
+        <div class="col-md-2">
+            <label class="form-label">Id</label>
+            <input class="form-control" value="Auto" disabled />
+        </div>
+        <div class="col-md-10">
+            <label asp-for="Nome" class="form-label"></label>
+            <input asp-for="Nome" class="form-control" />
+            <span asp-validation-for="Nome" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-4">
+            <label asp-for="EstoqueMinimo" class="form-label"></label>
+            <input asp-for="EstoqueMinimo" type="number" step="0.01" class="form-control" />
+            <span asp-validation-for="EstoqueMinimo" class="text-danger"></span>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="UnidadeMedida" class="form-label"></label>
+            <input asp-for="UnidadeMedida" class="form-control" placeholder="Kg, Unid, L..." />
+            <span asp-validation-for="UnidadeMedida" class="text-danger"></span>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="EstoqueAtualQtd" class="form-label"></label>
+            <input asp-for="EstoqueAtualQtd" type="number" step="0.01" class="form-control" />
+            <span asp-validation-for="EstoqueAtualQtd" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-12 mt-3">
+            <label asp-for="FornecedorId" class="form-label"></label>
+            <select asp-for="FornecedorId" asp-items="Model.Fornecedores" class="form-select">
+                <option value="">-- Selecione uma opção --</option>
+            </select>
+            <span asp-validation-for="FornecedorId" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-end gap-2 mt-4">
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-x-lg"></i> Cancelar
+        </a>
+        <button type="submit" class="btn btn-dark">
+            <i class="bi bi-check-lg"></i> Confirmar
+        </button>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

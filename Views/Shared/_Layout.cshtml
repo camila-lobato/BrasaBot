@@ -1,0 +1,87 @@
+﻿<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - BrasaBot</title>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/BrasaBot.styles.css" asp-append-version="true" />
+</head>
+<body>
+    <div class="d-flex">
+        <!-- MENU LATERAL -->
+        <aside class="menu-lateral text-white d-flex flex-column">
+            <div class="p-3 border-bottom border-secondary">
+                <h5 class="mb-0"><i class="bi bi-fire"></i> BrasaBot</h5>
+            </div>
+
+            <nav class="nav flex-column p-3 flex-grow-1">
+                <a class="nav-link text-white" asp-controller="Home" asp-action="Index">
+                    <i class="bi bi-house"></i> Início
+                </a>
+                <a class="nav-link text-white" href="#">
+                    <i class="bi bi-cash-coin"></i> Caixa
+                </a>
+                <a class="nav-link text-white" href="#">
+                    <i class="bi bi-journal-text"></i> Pedidos
+                </a>
+                <a class="nav-link text-white" href="#">
+                    <i class="bi bi-box-seam"></i> Estoque
+                </a>
+                <a class="nav-link text-white" href="#">
+                    <i class="bi bi-receipt"></i> Despesas
+                </a>
+                <a class="nav-link text-white" href="#">
+                    <i class="bi bi-file-earmark-bar-graph"></i> Relatórios
+                </a>
+
+                <div class="mt-2">
+                    <a class="nav-link text-white" data-bs-toggle="collapse" href="#menuCadastros" role="button">
+                        <i class="bi bi-pencil-square"></i> Cadastros <i class="bi bi-chevron-down float-end"></i>
+                    </a>
+                    <div class="collapse ps-3" id="menuCadastros">
+                        <a class="nav-link text-white-50" asp-controller="Funcionario" asp-action="Index">Funcionários</a>
+                        <a class="nav-link text-white-50" asp-controller="Cliente" asp-action="Index">Clientes</a>
+                        <a class="nav-link text-white-50" href="#">Usuários</a>
+                        <a class="nav-link text-white-50" asp-controller="Fornecedor" asp-action="Index">Fornecedores</a>
+                        <a class="nav-link text-white-50" asp-controller="Insumo" asp-action="Index">Insumos</a>
+                        <a class="nav-link text-white-50" asp-controller="Produto" asp-action="Index">Produtos</a>
+                        <a class="nav-link text-white-50" asp-controller="Categoria" asp-action="Index">Categorias</a>
+                        <a class="nav-link text-white-50" asp-controller="Servico" asp-action="Index">Serviços</a>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- RODAPÉ COM USUÁRIO LOGADO -->
+            <div class="border-top border-secondary">
+                <a href="#" class="d-flex align-items-center gap-2 p-3 text-white text-decoration-none rodape-usuario">
+                    <img src="https://ui-avatars.com/api/?name=Joao+Silva&background=random"
+                         alt="Foto do usuário"
+                         class="rounded-circle"
+                         style="width: 40px; height: 40px; object-fit: cover;" />
+                    <div class="flex-grow-1">
+                        <div class="fw-bold small">João Silva</div>
+                        <div class="text-white-50" style="font-size: 0.75rem;">Administrador</div>
+                    </div>
+                    <i class="bi bi-three-dots"></i>
+                </a>
+            </div>
+        </aside>
+
+        <!-- CONTEÚDO -->
+        <main class="flex-grow-1 bg-light" style="min-height: 100vh;">
+            <div class="container-fluid p-4">
+                @RenderBody()
+            </div>
+        </main>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

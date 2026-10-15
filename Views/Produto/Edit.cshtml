@@ -1,0 +1,81 @@
+﻿@model BrasaBot.ViewModels.ProdutoViewModel
+
+@{
+    ViewData["Title"] = "Editar Produto";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="mb-0">Editar Produto</h2>
+        <small class="text-muted">Gerencie os cadastros de produtos.</small>
+    </div>
+    <a asp-action="Index" class="btn btn-outline-dark">
+        <i class="bi bi-arrow-left"></i> Voltar
+    </a>
+</div>
+
+<form asp-action="Edit" method="post" enctype="multipart/form-data" class="card p-4">
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="FotoAtual" />
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+    <div class="row g-3">
+        <div class="col-md-2">
+            <label class="form-label">Id</label>
+            <input class="form-control" value="@Model.Id" disabled />
+        </div>
+        <div class="col-md-7">
+            <label asp-for="Nome" class="form-label"></label>
+            <input asp-for="Nome" class="form-control" />
+            <span asp-validation-for="Nome" class="text-danger"></span>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Foto Atual</label>
+            <div>
+                <img src="@(string.IsNullOrEmpty(Model.FotoAtual) ? "/img/produto-padrao.png" : Model.FotoAtual)"
+                     alt="Foto do produto"
+                     style="width: 80px; height: 80px; object-fit: cover; border-radius: 6px;" />
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <label asp-for="Valor" class="form-label"></label>
+            <input asp-for="Valor" type="number" step="0.01" class="form-control" />
+            <span asp-validation-for="Valor" class="text-danger"></span>
+        </div>
+        <div class="col-md-8">
+            <label asp-for="CategoriaId" class="form-label"></label>
+            <select asp-for="CategoriaId" asp-items="Model.Categorias" class="form-select">
+                <option value="">-- Selecione uma opção --</option>
+            </select>
+            <span asp-validation-for="CategoriaId" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-6">
+            <label asp-for="ArquivoFoto" class="form-label">Alterar Foto</label>
+            <input asp-for="ArquivoFoto" type="file" accept=".jpg,.jpeg,.png" class="form-control" />
+            <span asp-validation-for="ArquivoFoto" class="text-danger"></span>
+            <small class="text-muted">Deixe em branco para manter a foto atual.</small>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="Ativo" class="form-label"></label>
+            <select asp-for="Ativo" class="form-select">
+                <option value="true">Sim</option>
+                <option value="false">Não</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-end gap-2 mt-4">
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-x-lg"></i> Cancelar
+        </a>
+        <button type="submit" class="btn btn-dark">
+            <i class="bi bi-check-lg"></i> Confirmar
+        </button>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

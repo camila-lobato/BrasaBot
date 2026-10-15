@@ -1,0 +1,50 @@
+﻿@model BrasaBot.Models.Produto
+
+@{
+    ViewData["Title"] = "Visualizar Produto";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="mb-0">Visualizar Produto</h2>
+        <small class="text-muted">Gerencie os cadastros de produtos.</small>
+    </div>
+    <a asp-action="Index" class="btn btn-outline-dark">
+        <i class="bi bi-arrow-left"></i> Voltar
+    </a>
+</div>
+
+<div class="card p-4">
+    <div class="row g-3">
+        <div class="col-md-2">
+            <label class="form-label">Id</label>
+            <input class="form-control" value="@Model.Id" disabled />
+        </div>
+        <div class="col-md-7">
+            <label class="form-label">Nome</label>
+            <input class="form-control" value="@Model.Nome" disabled />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Foto</label>
+            <div>
+                <img src="@(string.IsNullOrEmpty(Model.Foto) ? "/img/produto-padrao.png" : Model.Foto)"
+                     alt="Foto do produto"
+                     style="width: 100px; height: 100px; object-fit: cover; border-radius: 6px;" />
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <label class="form-label">Valor</label>
+            <input class="form-control" value="@Model.Valor.ToString("C")" disabled />
+        </div>
+        <div class="col-md-8">
+            <label class="form-label">Categoria</label>
+            <input class="form-control" value="@(Model.Categoria?.Nome ?? "-")" disabled />
+        </div>
+
+        <div class="col-md-12 mt-3">
+            <label class="form-label">Ativo</label>
+            <input class="form-control" value="@(Model.Ativo ? "Sim" : "Não")" disabled />
+        </div>
+    </div>
+</div>
