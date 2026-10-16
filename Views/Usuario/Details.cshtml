@@ -1,0 +1,62 @@
+﻿@model BrasaBot.Models.Usuario
+
+@{
+    ViewData["Title"] = "Visualizar Usuário";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="mb-0">Visualizar Usuário</h2>
+        <small class="text-muted">Gerencie os cadastros de usuários.</small>
+    </div>
+    <a asp-action="Index" class="btn btn-outline-dark">
+        <i class="bi bi-arrow-left"></i> Voltar
+    </a>
+</div>
+
+<div class="card p-4">
+    <div class="row g-3">
+        <div class="col-md-2">
+            <label class="form-label">Id</label>
+            <input class="form-control" value="@Model.Id" disabled />
+        </div>
+        <div class="col-md-7">
+            <label class="form-label">E-mail</label>
+            <input class="form-control" value="@Model.Email" disabled />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Foto</label>
+            <div>
+                @if (!string.IsNullOrEmpty(Model.Foto))
+                {
+                    <img src="@Model.Foto" alt="Foto do usuário"
+                         style="width: 100px; height: 100px; object-fit: cover; border-radius: 6px;" />
+                }
+                else
+                {
+                    <span class="text-muted">Sem foto</span>
+                }
+            </div>
+        </div>
+
+        <div class="col-md-6 mt-3">
+            <label class="form-label">Funcionário</label>
+            <input class="form-control" value="@Model.Funcionario.Nome" disabled />
+        </div>
+        <div class="col-md-6 mt-3">
+            <label class="form-label">Nível de Acesso</label>
+            <input class="form-control" value="@Model.NivelAcesso" disabled />
+        </div>
+
+        <div class="col-md-6 mt-3">
+            <label class="form-label">Ativo</label>
+            <input class="form-control" value="@(Model.Ativo ? "Sim" : "Não")" disabled />
+        </div>
+        <div class="col-md-6 mt-3">
+            <label class="form-label">Último Acesso</label>
+            <input class="form-control"
+                   value="@(Model.UltimoAcesso.HasValue? Model.UltimoAcesso.Value.ToString("dd/MM/yyyy HH:mm") : "Nunca acessou")"
+                   disabled />
+        </div>
+    </div>
+</div>
