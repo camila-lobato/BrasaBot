@@ -13,5 +13,9 @@ namespace BrasaBot.Services.Interfaces
         Task<string?> SalvarImagemAsync(IFormFile arquivo);
 
       Task<List<Funcionario>> ObterFuncionariosSemUsuarioAsync(int? ignorarUsuarioId = null);
+
+        Task<Usuario?> ValidarCredenciaisAsync(string email, string senha);
+
+        Task RegistrarUltimoAcessoAsync(int usuarioId);
     }
 }

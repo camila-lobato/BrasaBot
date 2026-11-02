@@ -20,24 +20,36 @@ html {
 body {
   margin-bottom: 60px;
 }
-/* Menu lateral*/
-.menu-lateral {
-    width: 250px;
+/* ====== Layout do App (menu + conteúdo) ====== */
+.app-wrapper {
+    display: flex;
     min-height: 100vh;
-    background-color: #1B2E21;
-    flex-shrink: 0;
 }
 
-    .menu-lateral .nav-link {
-        padding: 10px 12px;
-        border-radius: 6px;
-        margin-bottom: 2px;
-        transition: background-color 0.2s;
-    }
+.menu-lateral {
+    width: 250px;
+    min-width: 250px;
+    max-width: 250px;
+    background-color: #1B2E21;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+}
 
-        .menu-lateral .nav-link:hover {
-            background-color: #2a4432;
-        }
+.menu-nav {
+    flex: 1;
+}
+
+.menu-lateral .nav-link {
+    padding: 10px 12px;
+    border-radius: 6px;
+    margin-bottom: 2px;
+    transition: background-color 0.2s;
+}
+
+    .menu-lateral .nav-link:hover {
+        background-color: #2a4432;
+    }
 
 .rodape-usuario {
     transition: background-color 0.2s;
@@ -46,11 +58,26 @@ body {
     .rodape-usuario:hover {
         background-color: #2a4432;
     }
+
+.app-conteudo {
+    flex: 1;
+    background-color: #f8f9fa;
+    min-width: 0; /* impede o flex de estourar por conteúdo grande */
+}
+
+/* Tabela com linha selecionável */
 .linha-selecionada {
     background-color: #d1e7dd !important;
     cursor: pointer;
 }
 
-#tabelaFuncionarios tbody tr {
+#tabelaFuncionarios tbody tr,
+#tabelaClientes tbody tr,
+#tabelaFornecedores tbody tr,
+#tabelaInsumos tbody tr,
+#tabelaProdutos tbody tr,
+#tabelaUsuarios tbody tr,
+#tabelaCategorias tbody tr,
+#tabelaServicos tbody tr {
     cursor: pointer;
 }

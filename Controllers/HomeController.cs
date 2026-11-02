@@ -1,4 +1,5 @@
 using BrasaBot.Models;
+using BrasaBot.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
@@ -6,21 +7,17 @@ namespace BrasaBot.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly IDashboardService _dashboardService;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(IDashboardService dashboardService)
         {
-            _logger = logger;
+            _dashboardService = dashboardService;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View();
-        }
-
-        public IActionResult Privacy()
-        {
-            return View();
+            var vm = await _dashboardService.ObterDadosAsync();
+            return View(vm);
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

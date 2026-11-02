@@ -4,6 +4,7 @@ using BrasaBot.Repositories;
 using BrasaBot.Services.Interfaces;
 using BrasaBot.Services;
 using BrasaBot.Models;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 
 namespace BrasaBot
@@ -23,31 +24,42 @@ namespace BrasaBot
             // === REPOSITÓRIOS ===
             builder.Services.AddScoped<IFuncionarioRepository, FuncionarioRepository>();
             builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
-
             builder.Services.AddScoped<IFornecedorRepository, FornecedorRepository>();
-
             builder.Services.AddScoped<IInsumoRepository, InsumoRepository>();
             builder.Services.AddScoped<IProdutoRepository, ProdutoRepository>();
             builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
-
-
-            builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));  
+            builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
             // === SERVICES ===
             builder.Services.AddScoped<IFuncionarioService, FuncionarioService>();
             builder.Services.AddScoped<ICategoriaService, CategoriaService>();
             builder.Services.AddScoped<IServicoService, ServicoService>();
-
             builder.Services.AddScoped<IClienteService, ClienteService>();
-
             builder.Services.AddScoped<IFornecedorService, FornecedorService>();
-
             builder.Services.AddScoped<IInsumoService, InsumoService>();
-
             builder.Services.AddScoped<IProdutoService, ProdutoService>();
             builder.Services.AddScoped<IUsuarioService, UsuarioService>();
+            builder.Services.AddScoped<IDashboardService, DashboardService>();
+            builder.Services.AddScoped<IPerfilService, PerfilService>();
 
-            builder.Services.AddControllersWithViews();
+            // AUTENTICAÇÃO POR COOKIE
+            builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(options =>
+                {
+                    options.LoginPath = "/Login";
+                    options.LogoutPath = "/Login/Logout";
+                    options.AccessDeniedPath = "/Login";
+                    options.ExpireTimeSpan = TimeSpan.FromHours(8);
+                    options.SlidingExpiration = true;
+                });
+
+            builder.Services.AddControllersWithViews(options =>
+            {
+                var policy = new Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder()
+                    .RequireAuthenticatedUser()
+                    .Build();
+                options.Filters.Add(new Microsoft.AspNetCore.Mvc.Authorization.AuthorizeFilter(policy));
+            });
 
             var app = builder.Build();
 
@@ -62,6 +74,7 @@ namespace BrasaBot
 
             app.UseRouting();
 
+            app.UseAuthentication();  // ← IMPORTANTE: vem ANTES do UseAuthorization
             app.UseAuthorization();
 
             app.MapControllerRoute(

@@ -11,5 +11,7 @@ namespace BrasaBot.Repositories.Interfaces
         Task ExcluirAsync(int id);
         Task<bool> ExisteEmailAsync(string email);
         Task<bool> ExisteFuncionarioVinculadoAsync(int funcionarioId, int? ignorarUsuarioId = null);
+
+        Task AtualizarUltimoAcessoAsync(int usuarioId);
     }
 }

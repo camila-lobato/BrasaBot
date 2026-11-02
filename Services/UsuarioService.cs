@@ -1,6 +1,7 @@
 ﻿using BrasaBot.Models;
 using BrasaBot.Repositories.Interfaces;
 using BrasaBot.Services.Interfaces;
+using BCrypt.Net;
 
 namespace BrasaBot.Services
 {
@@ -52,6 +53,9 @@ namespace BrasaBot.Services
             if (await _usuarioRepository.ExisteFuncionarioVinculadoAsync(usuario.FuncionarioId))
                 return false;
 
+            // hash da senha antes de salvar
+            usuario.Senha = BCrypt.Net.BCrypt.HashPassword(usuario.Senha);
+
             await _usuarioRepository.AdicionarAsync(usuario);
             return true;
         }
@@ -61,8 +65,29 @@ namespace BrasaBot.Services
             if (await _usuarioRepository.ExisteFuncionarioVinculadoAsync(usuario.FuncionarioId, usuario.Id))
                 return false;
 
+            // se a senha foi alterada (não está vazia), faz hash
+            if (!string.IsNullOrWhiteSpace(usuario.Senha))
+            {
+                usuario.Senha = BCrypt.Net.BCrypt.HashPassword(usuario.Senha);
+            }
+
             await _usuarioRepository.AtualizarAsync(usuario);
             return true;
+        }
+
+        public async Task<Usuario?> ValidarCredenciaisAsync(string email, string senha)
+        {
+            var usuarios = await _usuarioRepository.ObterTodosAsync();
+            var usuario = usuarios.FirstOrDefault(u => u.Email == email && u.Ativo);
+
+            if (usuario == null)
+                return null;
+
+            //compara senha com hash 
+            if (!BCrypt.Net.BCrypt.Verify(senha, usuario.Senha))
+                return null;
+
+            return usuario;
         }
 
         public async Task<bool> ExcluirAsync(int id)
@@ -110,6 +135,11 @@ namespace BrasaBot.Services
                 .ToHashSet();
 
             return funcionarios.Where(f => !idsVinculados.Contains(f.Id)).ToList();
+        }
+
+        public async Task RegistrarUltimoAcessoAsync(int usuarioId)
+        {
+            await _usuarioRepository.AtualizarUltimoAcessoAsync(usuarioId);
         }
     }
 }

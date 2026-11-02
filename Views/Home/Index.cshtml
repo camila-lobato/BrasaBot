@@ -1,8 +1,164 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model BrasaBot.ViewModels.DashboardViewModel
+
+@{
+    ViewData["Title"] = "Menu Inicial";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="mb-4">
+    <h2 class="mb-0">Bem-vindo</h2>
+    <small class="text-muted">Acesse rapidamente as principais funcionalidades.</small>
 </div>
+
+<!-- Gráficos -->
+<div class="row g-3 mb-4">
+    <div class="col-md-6">
+        <div class="card p-3">
+            <h6 class="text-muted mb-3">Vendas por Dia</h6>
+            <canvas id="graficoVendasDia" height="200"></canvas>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card p-3">
+            <h6 class="text-muted mb-3">Comparativo Mensal de Vendas</h6>
+            <canvas id="graficoVendasMes" height="200"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Acesso Rápido -->
+<h5 class="mb-3">Acesso rápido</h5>
+<div class="row g-3">
+    <div class="col-md-4">
+        <a asp-controller="Pedido" asp-action="Index" class="card p-3 text-decoration-none text-dark h-100">
+            <div class="d-flex align-items-center gap-3">
+                <div class="rounded p-2" style="background-color: #1B2E21;">
+                    <i class="bi bi-fork-knife text-white"></i>
+                </div>
+                <div>
+                    <div class="fw-bold">Nova venda</div>
+                    <small class="text-muted">Registrar um novo pedido</small>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-4">
+        <a asp-controller="Caixa" asp-action="Index" class="card p-3 text-decoration-none text-dark h-100">
+            <div class="d-flex align-items-center gap-3">
+                <div class="rounded p-2" style="background-color: #1B2E21;">
+                    <i class="bi bi-cash-coin text-white"></i>
+                </div>
+                <div>
+                    <div class="fw-bold">Gerenciar caixa</div>
+                    <small class="text-muted">Movimentações financeiras</small>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-4">
+        <a asp-controller="Estoque" asp-action="Index" class="card p-3 text-decoration-none text-dark h-100">
+            <div class="d-flex align-items-center gap-3">
+                <div class="rounded p-2" style="background-color: #1B2E21;">
+                    <i class="bi bi-box-seam text-white"></i>
+                </div>
+                <div>
+                    <div class="fw-bold">Controlar estoque</div>
+                    <small class="text-muted">Entrada e saída de insumos</small>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-4">
+        <a asp-controller="Produto" asp-action="Index" class="card p-3 text-decoration-none text-dark h-100">
+            <div class="d-flex align-items-center gap-3">
+                <div class="rounded p-2" style="background-color: #1B2E21;">
+                    <i class="bi bi-box text-white"></i>
+                </div>
+                <div>
+                    <div class="fw-bold">Cadastrar produto</div>
+                    <small class="text-muted">Adicionar ao cardápio</small>
+                </div>
+            </div>
+        </a>
+    </div>
+    @if (User.IsInRole("Administrador"))
+    {
+        <div class="col-md-4">
+            <a asp-controller="Relatorio" asp-action="Index" class="card p-3 text-decoration-none text-dark h-100">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="rounded p-2" style="background-color: #1B2E21;">
+                        <i class="bi bi-file-earmark-bar-graph text-white"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold">Ver relatórios</div>
+                        <small class="text-muted">Análise de desempenho</small>
+                    </div>
+                </div>
+            </a>
+        </div>
+    }
+    <div class="col-md-4">
+        <a asp-controller="Perfil" asp-action="Index" class="card p-3 text-decoration-none text-dark h-100">
+            <div class="d-flex align-items-center gap-3">
+                <div class="rounded p-2" style="background-color: #1B2E21;">
+                    <i class="bi bi-person text-white"></i>
+                </div>
+                <div>
+                    <div class="fw-bold">Meu perfil</div>
+                    <small class="text-muted">Configurações da conta</small>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Dados injetados pelo servidor
+        const vendasPorDia = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.VendasPorDia));
+        const mesesUltimos6 = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MesesUltimos6));
+        const vendasMensais = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.VendasMensais));
+
+        // Gráfico de linha - Vendas por Dia
+        const ctxDia = document.getElementById('graficoVendasDia').getContext('2d');
+        new Chart(ctxDia, {
+            type: 'line',
+            data: {
+                labels: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'],
+                datasets: [{
+                    label: 'Vendas (R$)',
+                    data: vendasPorDia,
+                    borderColor: '#1B2E21',
+                    backgroundColor: 'rgba(27, 46, 33, 0.1)',
+                    tension: 0.3,
+                    fill: true,
+                    pointBackgroundColor: '#1B2E21'
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+
+        // Gráfico de barras - Comparativo Mensal
+        const ctxMes = document.getElementById('graficoVendasMes').getContext('2d');
+        new Chart(ctxMes, {
+            type: 'bar',
+            data: {
+                labels: mesesUltimos6,
+                datasets: [{
+                    label: 'Vendas (R$)',
+                    data: vendasMensais,
+                    backgroundColor: '#1B2E21'
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+    </script>
+}

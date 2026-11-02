@@ -69,5 +69,16 @@ namespace BrasaBot.Repositories
 
             return await query.AnyAsync();
         }
+
+        public async Task AtualizarUltimoAcessoAsync(int usuarioId)
+        {
+            var usuario = await ObterPorIdAsync(usuarioId);
+            if (usuario == null)
+                return;
+
+            usuario.UltimoAcesso = DateTime.Now;
+            _context.Usuarios.Update(usuario);
+            await _context.SaveChangesAsync();
+        }
     }
 }
