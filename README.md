@@ -59,6 +59,8 @@ graph TD
     D --> E[AppDbContext]
     E --> F[MySQL]
 
+   
+   ```
 
     🚀 Como executar o projeto
 Pré-requisitos
