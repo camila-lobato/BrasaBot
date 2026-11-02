@@ -33,18 +33,16 @@ O sistema contempla os seguintes módulos:
 
 ## 🗺️ Estrutura do projeto
 BrasaBot/
-├── Controllers/ ← Controladores MVC (um por entidade/módulo)
-├── Models/ ← Entidades do banco de dados
-├── ViewModels/ ← Models específicos para as Views
-├── Repositories/ ← Camada de acesso a dados
-│ └── Interfaces/ ← Contratos dos repositórios
-├── Services/ ← Regras de negócio
-│ └── Interfaces/ ← Contratos dos services
-├── Views/ ← Telas Razor (por Controller)
-├── wwwroot/ ← Arquivos estáticos (CSS, JS, imagens, uploads)
-├── Migrations/ ← Histórico do banco via EF Core
-├── docs/ ← Documentação e diagramas
-└── Program.cs ← Configuração inicial da aplicação
+├── Controllers/
+├── Models/
+├── ViewModels/
+├── Repositories/
+├── Services/
+├── Views/
+├── wwwroot/
+├── Migrations/
+├── docs/
+└── Program.cs
 
 
 O projeto segue o padrão **MVC (Model-View-Controller)** com camadas adicionais de **Repository** e **Service** para separação de responsabilidades.
@@ -55,11 +53,12 @@ O projeto segue o padrão **MVC (Model-View-Controller)** com camadas adicionais
 
 ```mermaid
 graph TD
-    A[Browser - Razor Views] -->|HTTP/HTTPS| B[Controller]
+    A[Browser] --> B[Controller]
     B --> C[Service]
     C --> D[Repository]
-    D --> E[AppDbContext - EF Core]
-    E --> F[(MySQL)]
+    D --> E[AppDbContext]
+    E --> F[MySQL]
+
 
     🚀 Como executar o projeto
 Pré-requisitos
@@ -70,37 +69,34 @@ MySQL 8+
 Visual Studio 2022 (ou VS Code com extensão C#)
 
 Passo a passo
-Clone o repositório:
-
-bash
+1. Clone o repositório:
 git clone https://github.com/SEU-USUARIO/BrasaBot.git
 cd BrasaBot
-Ajuste a connection string em appsettings.json com seus dados do MySQL:
 
-json
+2. Ajuste a connection string em appsettings.json com seus dados do MySQL:
 "ConnectionStrings": {
   "DefaultConnection": "server=localhost;port=3306;database=brasabot;user=root;password=SUA_SENHA;"
 }
-Aplique as migrations para criar o banco de dados:
 
-powershell
+3. Aplique as migrations para criar o banco de dados:
 Update-Database
-Cadastre um usuário administrador inicial:
+
+4. Cadastre um usuário administrador inicial:
 
 Crie um Funcionário e um Usuário vinculado a ele pela própria interface, OU
 
-Insira diretamente via SQL (script de exemplo em docs/seed.sql)
+Insira diretamente via SQL
 
-Execute o projeto (F5) e acesse no navegador:
-
-text
+5. Execute o projeto (F5) e acesse no navegador:
 https://localhost:XXXX
+
 📚 Documentação
-📄 Documento de Especificação do Projeto
+📄 Documento de Especificação do Projeto (em docs/)
 
 🎨 Protótipo no Figma (link a definir)
 
-📊 Diagramas UML
+📊 Diagramas UML (em docs/diagramas/)
+
 
 📅 Status do desenvolvimento
 ☑ Modelagem do banco de dados
@@ -120,7 +116,6 @@ https://localhost:XXXX
 □ Controle de Estoque
 □ Gerenciamento de Despesas
 □ Emissão de Relatórios
-
 
 👩‍💻 Autora
 Camila Lobato Moreira
