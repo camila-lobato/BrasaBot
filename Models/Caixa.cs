@@ -5,6 +5,9 @@ namespace BrasaBot.Models
     public class Caixa
     {
         public int Id { get; set; }
+
+        [Required]
+        [Range(1, 3, ErrorMessage = "O número do caixa deve ser entre 1 e 3.")]
         public int NumeroCaixa { get; set; }
 
         public decimal SaldoInicial { get; set; }
@@ -17,7 +20,10 @@ namespace BrasaBot.Models
 
         [Required]
         [StringLength(20)]
-        public string Status { get; set; } = string.Empty;
+        public string Status { get; set; } = "Fechado"; // "Aberto" ou "Fechado"
+
+        [StringLength(255)]
+        public string? Observacao { get; set; }
 
         public DateTime DataAbertura { get; set; }
 

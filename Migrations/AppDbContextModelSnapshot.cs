@@ -42,6 +42,10 @@ namespace BrasaBot.Migrations
                     b.Property<int>("NumeroCaixa")
                         .HasColumnType("int");
 
+                    b.Property<string>("Observacao")
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
+
                     b.Property<decimal>("SaldoInicial")
                         .HasColumnType("decimal(65,30)");
 
@@ -390,6 +394,9 @@ namespace BrasaBot.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("varchar(255)");
 
+                    b.Property<int?>("PedidoId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Tipo")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -401,6 +408,8 @@ namespace BrasaBot.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CaixaId");
+
+                    b.HasIndex("PedidoId");
 
                     b.ToTable("MovimentacoesCaixa");
                 });
@@ -675,7 +684,14 @@ namespace BrasaBot.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("BrasaBot.Models.Pedido", "Pedido")
+                        .WithMany()
+                        .HasForeignKey("PedidoId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.Navigation("Caixa");
+
+                    b.Navigation("Pedido");
                 });
 
             modelBuilder.Entity("BrasaBot.Models.MovimentacaoEstoque", b =>

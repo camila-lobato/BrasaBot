@@ -101,6 +101,7 @@ https://localhost:XXXX
 
 
 📅 Status do desenvolvimento
+
 ☑ Modelagem do banco de dados
 ☑ Cadastro de Funcionários
 ☑ Cadastro de Clientes

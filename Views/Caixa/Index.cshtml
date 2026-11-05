@@ -1,0 +1,204 @@
+﻿@model BrasaBot.ViewModels.CaixaIndexViewModel
+
+@{
+    ViewData["Title"] = "Caixa";
+    var aberto = Model.CaixaAberto != null;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="mb-0">Abrir Caixa</h2>
+        <small class="text-muted">Gerencie as finanças.</small>
+    </div>
+</div>
+
+@if (TempData["Sucesso"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Sucesso"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["Erro"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["Erro"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<!-- Status + totais -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card p-3">
+            <small class="text-muted">Caixa</small>
+            <h5 class="mb-0">@(aberto ? $"Caixa {Model.CaixaAberto!.NumeroCaixa:00}" : "—")</h5>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card p-3">
+            <small class="text-muted">Total Entradas</small>
+            <h5 class="mb-0 text-success">@((Model.CaixaAberto?.TotalEntradas ?? 0).ToString("C"))</h5>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card p-3">
+            <small class="text-muted">Total Saídas</small>
+            <h5 class="mb-0 text-danger">@((Model.CaixaAberto?.TotalSaidas ?? 0).ToString("C"))</h5>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card p-3">
+            <small class="text-muted">Total</small>
+            <h5 class="mb-0">@((Model.CaixaAberto?.Total ?? 0).ToString("C"))</h5>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <!-- Painel lateral -->
+    <div class="col-md-4">
+        <div class="card p-3">
+            @if (aberto)
+            {
+                <div class="alert alert-success py-2 text-center fw-bold mb-3">CAIXA ABERTO</div>
+                <p class="small mb-1"><strong>Saldo Inicial:</strong> @Model.CaixaAberto!.SaldoInicial.ToString("C")</p>
+                <p class="small"><strong>Abertura:</strong> @Model.CaixaAberto.DataAbertura.ToString("dd/MM/yyyy HH:mm")</p>
+
+                <form asp-action="Fechar" method="get">
+                    <button type="submit" class="btn btn-dark w-100">
+                        <i class="bi bi-lock"></i> Fechar Caixa
+                    </button>
+                </form>
+            }
+            else
+            {
+                <div class="alert alert-danger py-2 text-center fw-bold mb-3">CAIXA FECHADO</div>
+                <form asp-action="Abrir" method="post">
+                    <div class="mb-3">
+                        <label class="form-label">Caixa</label>
+                        <select name="NumeroCaixa" asp-items="Model.CaixasDisponiveis" class="form-select">
+                            <option value="">-- Selecione uma opção --</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Saldo Inicial</label>
+                        <input name="SaldoInicial" type="number" step="0.01" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Observação</label>
+                        <textarea name="Observacao" class="form-control" rows="2" placeholder="Informações adicionais sobre o caixa"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-dark w-100">
+                        <i class="bi bi-unlock"></i> Abrir Caixa
+                    </button>
+                </form>
+            }
+        </div>
+    </div>
+
+    <!-- Grade de movimentações -->
+    <div class="col-md-8">
+        <div class="card p-3">
+            <h6 class="mb-3">Movimentações</h6>
+
+            <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                <table class="table table-sm table-hover align-middle">
+                    <thead class="table-light sticky-top">
+                        <tr>
+                            <th>Data/Hora</th>
+                            <th>Valor</th>
+                            <th>Tipo</th>
+                            <th>Forma Pgto.</th>
+                            <th>Observação</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!Model.Movimentacoes.Any())
+                        {
+                            <tr><td colspan="5" class="text-center text-muted">Nenhuma movimentação registrada.</td></tr>
+                        }
+                        else
+                        {
+                            foreach (var m in Model.Movimentacoes)
+                            {
+                                <tr>
+                                    <td>@m.DataHora.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td class="@(m.Tipo == "Entrada" ? "text-success" : "text-danger")">@m.Valor.ToString("C")</td>
+                                    <td>@m.Tipo</td>
+                                    <td>@m.FormaPagamento</td>
+                                    <td class="small text-muted">@m.Observacao</td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="d-flex gap-2 mt-3">
+                <button class="btn btn-dark btn-sm" data-bs-toggle="modal" data-bs-target="#modalInserir" @(aberto ? "" : "disabled")>
+                    <i class="bi bi-plus-circle"></i> Inserir Dinheiro
+                </button>
+                <button class="btn btn-dark btn-sm" data-bs-toggle="modal" data-bs-target="#modalRetirar" @(aberto ? "" : "disabled")>
+                    <i class="bi bi-dash-circle"></i> Retirar Dinheiro
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Inserir -->
+<div class="modal fade" id="modalInserir" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form asp-action="InserirDinheiro" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title">Inserir Dinheiro</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Valor</label>
+                        <input name="Valor" type="number" step="0.01" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Observação</label>
+                        <textarea name="Observacao" class="form-control" rows="2"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-dark">Confirmar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Retirar -->
+<div class="modal fade" id="modalRetirar" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form asp-action="RetirarDinheiro" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title">Retirar Dinheiro</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Valor</label>
+                        <input name="Valor" type="number" step="0.01" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Observação</label>
+                        <textarea name="Observacao" class="form-control" rows="2"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-dark">Confirmar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

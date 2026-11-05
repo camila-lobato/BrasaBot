@@ -55,6 +55,13 @@ namespace BrasaBot.Data
                 .WithMany()
                 .HasForeignKey(i => i.FornecedorId)
                 .OnDelete(DeleteBehavior.SetNull);
+
+            // MovimentacaoCaixa → Pedido (opcional, sem cascade)
+            modelBuilder.Entity<MovimentacaoCaixa>()
+                .HasOne(m => m.Pedido)
+                .WithMany()
+                .HasForeignKey(m => m.PedidoId)
+                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 }
