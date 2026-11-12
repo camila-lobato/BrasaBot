@@ -50,6 +50,11 @@
             <hr />
         </div>
 
+        <div class="col-md-4">
+            <label asp-for="CEP" class="form-label"></label>
+            <input asp-for="CEP" class="form-control" />
+        </div>
+
         <div class="col-md-6">
             <label asp-for="Logradouro" class="form-label"></label>
             <input asp-for="Logradouro" class="form-control" />
@@ -64,10 +69,7 @@
             <input asp-for="Bairro" class="form-control" />
             <span asp-validation-for="Bairro" class="text-danger"></span>
         </div>
-        <div class="col-md-4">
-            <label asp-for="CEP" class="form-label"></label>
-            <input asp-for="CEP" class="form-control" />
-        </div>
+        
     </div>
 
     <div class="d-flex justify-content-end gap-2 mt-4">

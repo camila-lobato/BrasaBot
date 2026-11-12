@@ -44,6 +44,12 @@
             <hr />
         </div>
 
+        <div class="col-md-4">
+            <label asp-for="CEP" class="form-label"></label>
+            <input asp-for="CEP" class="form-control" />
+            <span asp-validation-for="CEP" class="text-danger"></span>
+        </div>
+
         <div class="col-md-6">
             <label asp-for="Logradouro" class="form-label"></label>
             <input asp-for="Logradouro" class="form-control" />
@@ -59,11 +65,7 @@
             <input asp-for="Bairro" class="form-control" />
             <span asp-validation-for="Bairro" class="text-danger"></span>
         </div>
-        <div class="col-md-4">
-            <label asp-for="CEP" class="form-label"></label>
-            <input asp-for="CEP" class="form-control" />
-            <span asp-validation-for="CEP" class="text-danger"></span>
-        </div>
+        
 
         <div class="col-12 mt-3">
             <h6>Admissão</h6>
@@ -71,9 +73,11 @@
         </div>
 
         <div class="col-md-6">
-            <label asp-for="Cargo" class="form-label"></label>
-            <input asp-for="Cargo" class="form-control" placeholder="Atendente, Cozinheiro..." />
-            <span asp-validation-for="Cargo" class="text-danger"></span>
+            <label asp-for="CargoId" class="form-label"></label>
+            <select asp-for="CargoId" asp-items="Model.Cargos" class="form-select">
+                <option value="">-- Selecione uma opção --</option>
+            </select>
+            <span asp-validation-for="CargoId" class="text-danger"></span>
         </div>
         <div class="col-md-6">
             <label asp-for="DataAdmissao" class="form-label"></label>

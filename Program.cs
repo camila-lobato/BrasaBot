@@ -14,6 +14,7 @@ namespace BrasaBot
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            
 
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseMySql(
@@ -44,6 +45,7 @@ namespace BrasaBot
             builder.Services.AddScoped<IDashboardService, DashboardService>();
             builder.Services.AddScoped<IPerfilService, PerfilService>();
             builder.Services.AddScoped<ICaixaService, CaixaService>();
+            builder.Services.AddScoped<ICargoService, CargoService>();
 
             // AUTENTICAÇÃO POR COOKIE
             builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -66,7 +68,7 @@ namespace BrasaBot
 
             var app = builder.Build();
 
-            if (!app.Environment.IsDevelopment())
+           if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Home/Error");
                 app.UseHsts();

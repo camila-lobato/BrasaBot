@@ -39,6 +39,11 @@
             <hr />
         </div>
 
+        <div class="col-md-4">
+            <label class="form-label">CEP</label>
+            <input class="form-control" value="@Model.CEP" disabled />
+        </div>
+
         <div class="col-md-6">
             <label class="form-label">Logradouro</label>
             <input class="form-control" value="@Model.Logradouro" disabled />
@@ -51,10 +56,7 @@
             <label class="form-label">Bairro</label>
             <input class="form-control" value="@Model.Bairro" disabled />
         </div>
-        <div class="col-md-4">
-            <label class="form-label">CEP</label>
-            <input class="form-control" value="@Model.CEP" disabled />
-        </div>
+        
 
         <div class="col-12 mt-3">
             <h6>Admissão</h6>
@@ -63,7 +65,7 @@
 
         <div class="col-md-6">
             <label class="form-label">Cargo</label>
-            <input class="form-control" value="@Model.Cargo" disabled />
+            <input class="form-control" value="@(Model.Cargo?.Nome ?? "—")" disabled />
         </div>
         <div class="col-md-6">
             <label class="form-label">Data de Admissão</label>

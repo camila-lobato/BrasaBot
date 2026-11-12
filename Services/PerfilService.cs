@@ -29,7 +29,7 @@ namespace BrasaBot.Services
                 Nome = usuario.Funcionario.Nome,
                 Email = usuario.Email,
                 NivelAcesso = usuario.NivelAcesso,
-                Cargo = usuario.Funcionario.Cargo,
+                Cargo = usuario.Funcionario.Cargo?.Nome ?? "—",
                 Telefone = usuario.Funcionario.Telefone ?? string.Empty,
                 DataAdmissao = usuario.Funcionario.DataAdmissao,
                 UltimoAcesso = usuario.UltimoAcesso,

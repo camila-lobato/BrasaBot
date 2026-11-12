@@ -27,6 +27,10 @@ namespace BrasaBot.Data
         public DbSet<Despesa> Despesas { get; set; }
         public DbSet<MovimentacaoEstoque> MovimentacoesEstoque { get; set; }
 
+        public DbSet<Cargo> Cargos { get; set; }
+
+
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -49,19 +53,25 @@ namespace BrasaBot.Data
                 .WithMany(i => i.ProdutoInsumos)
                 .HasForeignKey(pi => pi.InsumoId);
 
-            // Insumo → Fornecedor (opcional, sem cascade delete)
+            // Insumo → Fornecedor
             modelBuilder.Entity<Insumo>()
                 .HasOne(i => i.Fornecedor)
                 .WithMany()
                 .HasForeignKey(i => i.FornecedorId)
                 .OnDelete(DeleteBehavior.SetNull);
 
-            // MovimentacaoCaixa → Pedido (opcional, sem cascade)
+            // MovimentacaoCaixa
             modelBuilder.Entity<MovimentacaoCaixa>()
                 .HasOne(m => m.Pedido)
                 .WithMany()
                 .HasForeignKey(m => m.PedidoId)
                 .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<Funcionario>()
+                .HasOne(f => f.Cargo)
+                .WithMany()
+                .HasForeignKey(f => f.CargoId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

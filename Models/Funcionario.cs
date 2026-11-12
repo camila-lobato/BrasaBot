@@ -30,8 +30,12 @@ namespace BrasaBot.Models
         public string? CEP { get; set; }
 
         [Required]
-        [StringLength(50)]
-        public string Cargo { get; set; } = string.Empty;
+        public int CargoId { get; set; }
+
+        public virtual Cargo Cargo { get; set; } = null!;
+
+        [Obsolete("Campo legado, será removido")]
+        public string? CargoAntigo { get; set; } 
 
         [Required]
         public DateTime DataAdmissao { get; set; }

@@ -39,9 +39,9 @@ namespace BrasaBot.ViewModels
         public string? CEP { get; set; }
 
         [Required(ErrorMessage = "O campo Cargo é obrigatório.")]
-        [StringLength(50)]
         [Display(Name = "Cargo")]
-        public string Cargo { get; set; } = string.Empty;
+        public int CargoId { get; set; }
+        public IEnumerable<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>? Cargos { get; set; }
 
         [Required(ErrorMessage = "O campo Data de Admissão é obrigatório.")]
         [DataType(DataType.Date)]

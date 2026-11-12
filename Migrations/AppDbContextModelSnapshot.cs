@@ -70,6 +70,27 @@ namespace BrasaBot.Migrations
                     b.ToTable("Caixas");
                 });
 
+            modelBuilder.Entity("BrasaBot.Models.Cargo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Cargos");
+                });
+
             modelBuilder.Entity("BrasaBot.Models.Categoria", b =>
                 {
                     b.Property<int>("Id")
@@ -251,10 +272,11 @@ namespace BrasaBot.Migrations
                         .HasMaxLength(14)
                         .HasColumnType("varchar(14)");
 
-                    b.Property<string>("Cargo")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)");
+                    b.Property<string>("CargoAntigo")
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("CargoId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("DataAdmissao")
                         .HasColumnType("datetime(6)");
@@ -277,6 +299,8 @@ namespace BrasaBot.Migrations
                         .HasColumnType("varchar(20)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CargoId");
 
                     b.ToTable("Funcionarios");
                 });
@@ -645,6 +669,17 @@ namespace BrasaBot.Migrations
                         .IsRequired();
 
                     b.Navigation("Fornecedor");
+                });
+
+            modelBuilder.Entity("BrasaBot.Models.Funcionario", b =>
+                {
+                    b.HasOne("BrasaBot.Models.Cargo", "Cargo")
+                        .WithMany()
+                        .HasForeignKey("CargoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Cargo");
                 });
 
             modelBuilder.Entity("BrasaBot.Models.Insumo", b =>

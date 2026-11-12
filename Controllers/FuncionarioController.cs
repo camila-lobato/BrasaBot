@@ -2,19 +2,21 @@
 using BrasaBot.Services.Interfaces;
 using BrasaBot.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace BrasaBot.Controllers
 {
     public class FuncionarioController : Controller
     {
         private readonly IFuncionarioService _funcionarioService;
+        private readonly ICargoService _cargoService;
 
-        public FuncionarioController(IFuncionarioService funcionarioService)
+        public FuncionarioController(IFuncionarioService funcionarioService, ICargoService cargoService)
         {
             _funcionarioService = funcionarioService;
+            _cargoService = cargoService;
         }
 
-        // GET: /Funcionario
         public async Task<IActionResult> Index(string? busca)
         {
             var funcionarios = await _funcionarioService.BuscarAsync(busca ?? string.Empty);
@@ -22,19 +24,21 @@ namespace BrasaBot.Controllers
             return View(funcionarios);
         }
 
-        // GET: /Funcionario/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            return View(new FuncionarioViewModel());
+            var vm = new FuncionarioViewModel { Cargos = await ObterCargosSelectList() };
+            return View(vm);
         }
 
-        // POST: /Funcionario/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(FuncionarioViewModel vm)
         {
             if (!ModelState.IsValid)
+            {
+                vm.Cargos = await ObterCargosSelectList();
                 return View(vm);
+            }
 
             var funcionario = new Funcionario
             {
@@ -45,7 +49,7 @@ namespace BrasaBot.Controllers
                 Numero = vm.Numero,
                 Bairro = vm.Bairro,
                 CEP = vm.CEP,
-                Cargo = vm.Cargo,
+                CargoId = vm.CargoId,
                 DataAdmissao = vm.DataAdmissao,
                 Ativo = true
             };
@@ -55,6 +59,7 @@ namespace BrasaBot.Controllers
             if (!sucesso)
             {
                 ModelState.AddModelError("CPF", "Já existe um funcionário cadastrado com este CPF.");
+                vm.Cargos = await ObterCargosSelectList();
                 return View(vm);
             }
 
@@ -62,7 +67,6 @@ namespace BrasaBot.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: /Funcionario/Edit/5
         public async Task<IActionResult> Edit(int id)
         {
             var funcionario = await _funcionarioService.ObterPorIdAsync(id);
@@ -79,28 +83,28 @@ namespace BrasaBot.Controllers
                 Numero = funcionario.Numero,
                 Bairro = funcionario.Bairro,
                 CEP = funcionario.CEP,
-                Cargo = funcionario.Cargo,
+                CargoId = funcionario.CargoId,
                 DataAdmissao = funcionario.DataAdmissao,
-                Ativo = funcionario.Ativo
+                Ativo = funcionario.Ativo,
+                Cargos = await ObterCargosSelectList()
             };
 
             return View(vm);
         }
 
-        // POST: /Funcionario/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, FuncionarioViewModel vm)
         {
-            if (id != vm.Id)
-                return NotFound();
-
+            if (id != vm.Id) return NotFound();
             if (!ModelState.IsValid)
+            {
+                vm.Cargos = await ObterCargosSelectList();
                 return View(vm);
+            }
 
             var funcionario = await _funcionarioService.ObterPorIdAsync(id);
-            if (funcionario == null)
-                return NotFound();
+            if (funcionario == null) return NotFound();
 
             funcionario.Nome = vm.Nome;
             funcionario.CPF = vm.CPF ?? string.Empty;
@@ -109,7 +113,7 @@ namespace BrasaBot.Controllers
             funcionario.Numero = vm.Numero;
             funcionario.Bairro = vm.Bairro;
             funcionario.CEP = vm.CEP;
-            funcionario.Cargo = vm.Cargo;
+            funcionario.CargoId = vm.CargoId;
             funcionario.DataAdmissao = vm.DataAdmissao;
 
             await _funcionarioService.AtualizarAsync(funcionario);
@@ -118,17 +122,13 @@ namespace BrasaBot.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: /Funcionario/Details/5
         public async Task<IActionResult> Details(int id)
         {
             var funcionario = await _funcionarioService.ObterPorIdAsync(id);
-            if (funcionario == null)
-                return NotFound();
-
+            if (funcionario == null) return NotFound();
             return View(funcionario);
         }
 
-        // POST: /Funcionario/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
@@ -136,6 +136,16 @@ namespace BrasaBot.Controllers
             await _funcionarioService.ExcluirAsync(id);
             TempData["Sucesso"] = "Sua ação foi concluída com sucesso!";
             return RedirectToAction(nameof(Index));
+        }
+
+        private async Task<IEnumerable<SelectListItem>> ObterCargosSelectList()
+        {
+            var cargos = await _cargoService.ObterTodosAsync();
+            return cargos.Select(c => new SelectListItem
+            {
+                Value = c.Id.ToString(),
+                Text = c.Nome
+            });
         }
     }
 }
