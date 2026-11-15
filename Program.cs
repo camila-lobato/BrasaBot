@@ -4,8 +4,10 @@ using BrasaBot.Repositories;
 using BrasaBot.Services.Interfaces;
 using BrasaBot.Services;
 using BrasaBot.Models;
+using BrasaBot.Infra;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
 
 namespace BrasaBot
 {
@@ -13,8 +15,14 @@ namespace BrasaBot
     {
         public static void Main(string[] args)
         {
+
+           
+
             var builder = WebApplication.CreateBuilder(args);
-            
+            var cultureInfo = new System.Globalization.CultureInfo("pt-BR");
+            System.Globalization.CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
+            System.Globalization.CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
+
 
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseMySql(
@@ -58,8 +66,13 @@ namespace BrasaBot
                     options.SlidingExpiration = true;
                 });
 
+
+
             builder.Services.AddControllersWithViews(options =>
             {
+
+                options.ModelBinderProviders.Insert(0, new BrazilianDecimalModelBinderProvider());
+                // filtro global de [Authorize] 
                 var policy = new Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder()
                     .RequireAuthenticatedUser()
                     .Build();

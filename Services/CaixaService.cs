@@ -35,7 +35,8 @@ namespace BrasaBot.Services
 
         public async Task<Caixa> AbrirCaixaAsync(int numeroCaixa, decimal saldoInicial, string? observacao, int funcionarioId)
         {
-            // Verifica se o caixa específico já está aberto
+            Console.WriteLine($">>> SERVICE: saldoInicial recebido = {saldoInicial}");
+
             var existente = await _caixaRepository.ObterCaixaPorNumeroAbertoAsync(numeroCaixa);
             if (existente != null)
                 throw new InvalidOperationException($"O Caixa {numeroCaixa:00} já está aberto.");
@@ -53,7 +54,12 @@ namespace BrasaBot.Services
                 FuncionarioId = funcionarioId
             };
 
+            Console.WriteLine($">>> SERVICE: caixa.Total = {caixa.Total}, caixa.SaldoInicial = {caixa.SaldoInicial}");
+
             await _caixaRepository.AdicionarAsync(caixa);
+
+            Console.WriteLine($">>> SERVICE: caixa salvo! Id = {caixa.Id}, Total = {caixa.Total}");
+
             return caixa;
         }
 

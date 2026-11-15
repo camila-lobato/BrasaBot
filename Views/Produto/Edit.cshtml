@@ -40,7 +40,7 @@
 
         <div class="col-md-4">
             <label asp-for="Valor" class="form-label"></label>
-            <input asp-for="Valor" type="number" step="0.01" class="form-control" />
+            <input asp-for="Valor" type="text" class="form-control mask-money" data-val="false" />
             <span asp-validation-for="Valor" class="text-danger"></span>
         </div>
         <div class="col-md-8">

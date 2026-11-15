@@ -81,3 +81,9 @@ body {
 #tabelaServicos tbody tr {
     cursor: pointer;
 }
+
+.form-label.required::after,
+label.required::after {
+    content: " *";
+    color: #dc3545;
+    font-weight: bold;

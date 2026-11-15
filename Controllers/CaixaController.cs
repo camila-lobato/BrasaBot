@@ -54,18 +54,47 @@ namespace BrasaBot.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Abrir(AbrirCaixaViewModel vm)
+        public async Task<IActionResult> Abrir(
+     [FromForm] string? SaldoInicial,
+     [FromForm] string? Observacao)
         {
-            if (!ModelState.IsValid)
+            Console.WriteLine(">>> ===== INÍCIO DO ABRIR CAIXA =====");
+            Console.WriteLine($">>> SaldoInicial recebido: '{SaldoInicial}'");
+            Console.WriteLine($">>> Observacao recebida: '{Observacao}'");
+
+            decimal saldoInicialDecimal = 0;
+
+            if (!string.IsNullOrWhiteSpace(SaldoInicial))
             {
-                TempData["Erro"] = "Dados inválidos ao abrir o caixa.";
-                return RedirectToAction(nameof(Index));
+                var valorLimpo = SaldoInicial
+                    .Replace("R$", "")
+                    .Replace(" ", "")
+                    .Replace(".", "")
+                    .Replace(",", ".")
+                    .Trim();
+
+                Console.WriteLine($">>> Valor após limpeza: '{valorLimpo}'");
+
+                if (!decimal.TryParse(valorLimpo,
+                    System.Globalization.NumberStyles.Any,
+                    System.Globalization.CultureInfo.InvariantCulture,
+                    out saldoInicialDecimal))
+                {
+                    Console.WriteLine(">>> ERRO: Parse falhou!");
+                    TempData["Erro"] = "Saldo inicial inválido.";
+                    return RedirectToAction(nameof(Index));
+                }
             }
+
+            Console.WriteLine($">>> saldoInicialDecimal parseado: {saldoInicialDecimal}");
 
             try
             {
                 await _caixaService.AbrirCaixaAsync(
-                    vm.NumeroCaixa, vm.SaldoInicial, vm.Observacao, ObterFuncionarioId());
+                    numeroCaixa: 1,
+                    saldoInicialDecimal,
+                    Observacao,
+                    ObterFuncionarioId());
 
                 TempData["Sucesso"] = "Caixa aberto com sucesso!";
             }
