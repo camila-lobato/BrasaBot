@@ -82,8 +82,28 @@ body {
     cursor: pointer;
 }
 
-.form-label.required::after,
-label.required::after {
-    content: " *";
-    color: #dc3545;
-    font-weight: bold;
+/* Cards de mesa */
+.mesa-card {
+    transition: transform 0.15s, box-shadow 0.15s;
+    cursor: pointer;
+    min-height: 80px;
+}
+
+    .mesa-card .card-body {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 8px !important;
+    }
+
+    .mesa-card h4 {
+        font-size: 1.75rem;
+        line-height: 1;
+    }
+
+    .mesa-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15) !important;
+        background-color: #f8f9fa;
+    }

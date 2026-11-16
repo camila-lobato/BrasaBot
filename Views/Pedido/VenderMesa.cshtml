@@ -1,0 +1,184 @@
+﻿@model BrasaBot.Models.Pedido
+
+@{
+    ViewData["Title"] = $"Mesa {Model.Mesa?.Numero}";
+}
+
+@if (TempData["Sucesso"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Sucesso"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["Erro"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["Erro"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="mb-0">Mesa @Model.Mesa?.Numero</h2>
+        <small class="text-muted">Gerencie os pedidos.</small>
+    </div>
+    <a asp-action="Index" class="btn btn-outline-dark">
+        <i class="bi bi-arrow-left"></i> Voltar
+    </a>
+</div>
+
+<div class="row g-3">
+    <!-- Grade de itens -->
+    <div class="col-md-8">
+        <div class="card p-3">
+            <h6 class="mb-3">Itens do Pedido</h6>
+
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome</th>
+                        <th>Valor</th>
+                        <th class="text-center">Detalhes</th>
+                        <th class="text-center">Ação</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.ItensPedido == null || !Model.ItensPedido.Any())
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center text-muted">Nenhum item adicionado.</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        foreach (var item in Model.ItensPedido)
+                        {
+                            <tr>
+                                <td>@item.Id</td>
+                                <td>@item.Produto?.Nome</td>
+                                <td>@item.ValorUnitario.ToString("C")</td>
+                                <td class="text-center">
+                                    <button class="btn btn-sm btn-outline-dark"
+                                            data-bs-toggle="modal" data-bs-target="#modalDetalhes"
+                                            data-nome="@item.Produto?.Nome"
+                                            data-valor="@item.ValorUnitario.ToString("C")"
+                                            data-data="@DateTime.Now.ToString("dd/MM/yyyy HH:mm")">
+                                        <i class="bi bi-info-circle"></i>
+                                    </button>
+                                </td>
+                                <td class="text-center">
+                                    <button type="button" class="btn btn-sm btn-outline-danger"
+                                            data-bs-toggle="modal" data-bs-target="#modalExcluirItem"
+                                            data-id="@item.Id"
+                                            data-nome="@item.Produto?.Nome">
+                                        <i class="bi bi-x-lg"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Painel lateral -->
+    <div class="col-md-4">
+        <div class="card p-3" style="background-color: #1B2E21; color: white;">
+            <h6 class="mb-3">Mesa @Model.Mesa?.Numero</h6>
+
+            <a asp-action="AdicionarProduto" asp-route-pedidoId="@Model.Id"
+               class="btn btn-light w-100 mb-2">
+                <i class="bi bi-plus-lg"></i> Adicionar Produto
+            </a>
+
+            <hr class="border-light" />
+
+            <div class="d-flex justify-content-between mb-2">
+                <span>Total:</span>
+                <strong class="fs-4">@Model.Total.ToString("C")</strong>
+            </div>
+
+            <a asp-action="FecharConta" asp-route-id="@Model.Id"
+               class="btn btn-warning w-100">
+                <i class="bi bi-cash"></i> Pagar
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Detalhes do Item -->
+<div class="modal fade" id="modalDetalhes" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body py-4">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Nome</label>
+                    <input class="form-control" id="detNome" disabled />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Valor</label>
+                    <input class="form-control" id="detValor" disabled />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Data e Horário do pedido</label>
+                    <input class="form-control" id="detData" disabled />
+                </div>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-dark" data-bs-dismiss="modal">
+                    <i class="bi bi-check-lg"></i> Ok
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Excluir Item -->
+<div class="modal fade" id="modalExcluirItem" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center py-4">
+                <p class="mb-3">Deseja excluir o produto selecionado?</p>
+                <p class="fw-bold" id="itemExcluirNome"></p>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-lg"></i> Cancelar
+                </button>
+                <form asp-action="RemoverItem" method="post" id="formExcluirItem">
+                    <input type="hidden" name="itemId" id="itemExcluirId" />
+                    <input type="hidden" name="pedidoId" value="@Model.Id" />
+                    <input type="hidden" name="mesaId" value="@Model.MesaId" />
+                    <button type="submit" class="btn btn-dark">
+                        <i class="bi bi-check-lg"></i> Confirmar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Detalhes
+        var modalDetalhes = document.getElementById('modalDetalhes');
+        modalDetalhes.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget;
+            document.getElementById('detNome').value = button.getAttribute('data-nome');
+            document.getElementById('detValor').value = button.getAttribute('data-valor');
+            document.getElementById('detData').value = button.getAttribute('data-data');
+        });
+
+        // Excluir item
+        var modalExcluir = document.getElementById('modalExcluirItem');
+        modalExcluir.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget;
+            document.getElementById('itemExcluirId').value = button.getAttribute('data-id');
+            document.getElementById('itemExcluirNome').textContent = button.getAttribute('data-nome');
+        });
+    </script>
+}

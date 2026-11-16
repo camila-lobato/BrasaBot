@@ -1,0 +1,204 @@
+﻿@model BrasaBot.ViewModels.AdicionarProdutoViewModel
+
+@{
+    ViewData["Title"] = "Adicionar Produto";
+}
+
+@if (TempData["Sucesso"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Sucesso"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["Erro"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["Erro"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="mb-0">
+            Adicionar Produto
+            @if (Model.TipoPedido == "Mesa" && Model.MesaId.HasValue)
+            {
+                <span>- Mesa @Model.MesaId</span>
+            }
+        </h2>
+        <small class="text-muted">Selecione os produtos para o pedido.</small>
+    </div>
+    @if (Model.TipoPedido == "Mesa" && Model.MesaId.HasValue)
+    {
+        <a asp-action="VenderMesa" asp-route-id="@Model.MesaId" class="btn btn-outline-dark">
+            <i class="bi bi-arrow-left"></i> Voltar à Mesa
+        </a>
+    }
+    else
+    {
+        <a asp-action="Index" class="btn btn-outline-dark">
+            <i class="bi bi-arrow-left"></i> Voltar
+        </a>
+    }
+</div>
+
+<div class="row g-3">
+    <!-- Coluna principal: categorias + produtos -->
+    <div class="col-md-8">
+        <!-- Abas de categoria -->
+        <ul class="nav nav-pills mb-3 flex-wrap gap-2">
+            <li class="nav-item">
+                <a class="nav-link @(ViewBag.CategoriaSelecionada == null ? "active" : "")"
+                   asp-action="AdicionarProduto"
+                   asp-route-pedidoId="@Model.PedidoId">
+                    Todos
+                </a>
+            </li>
+            @foreach (var cat in Model.Categorias)
+            {
+                <li class="nav-item">
+                    <a class="nav-link @(ViewBag.CategoriaSelecionada == cat.Id ? "active" : "")"
+                       asp-action="AdicionarProduto"
+                       asp-route-pedidoId="@Model.PedidoId"
+                       asp-route-categoriaId="@cat.Id">
+                        @cat.Nome
+                    </a>
+                </li>
+            }
+        </ul>
+
+        <!-- Grid de produtos -->
+        @if (!Model.Produtos.Any())
+        {
+            <div class="alert alert-info">Nenhum produto cadastrado nesta categoria.</div>
+        }
+        else
+        {
+            <div class="row row-cols-2 row-cols-md-3 g-3">
+                @foreach (var produto in Model.Produtos)
+                {
+                    <div class="col">
+                        <div class="card h-100 shadow-sm">
+                            @if (!string.IsNullOrEmpty(produto.Foto))
+                            {
+                                <img src="@produto.Foto" class="card-img-top" alt="@produto.Nome"
+                                     style="height: 120px; object-fit: cover;" />
+                            }
+                            else
+                            {
+                                <div class="bg-light d-flex align-items-center justify-content-center"
+                                     style="height: 120px;">
+                                    <i class="bi bi-image text-muted" style="font-size: 2rem;"></i>
+                                </div>
+                            }
+                            <div class="card-body p-2 text-center">
+                                <h6 class="card-title mb-1">@produto.Nome</h6>
+                                <p class="text-muted small mb-2">@produto.Valor.ToString("C")</p>
+                                <form asp-action="AdicionarItem" method="post">
+                                    <input type="hidden" name="pedidoId" value="@Model.PedidoId" />
+                                    <input type="hidden" name="produtoId" value="@produto.Id" />
+                                    <input type="hidden" name="categoriaId" value="@ViewBag.CategoriaSelecionada" />
+                                    <button type="submit" class="btn btn-dark btn-sm w-100">
+                                        <i class="bi bi-plus-lg"></i> Adicionar
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+
+    <!-- Painel lateral: itens do pedido -->
+    <div class="col-md-4">
+        <div class="card p-3 sticky-top" style="top: 20px; background-color: #1B2E21; color: white;">
+            <h6 class="mb-3">Pedido</h6>
+
+            <!-- Grade de itens -->
+            <div style="max-height: 300px; overflow-y: auto;">
+                @if (!Model.ItensAtuais.Any())
+                {
+                    <p class="text-white-50 small">Nenhum item adicionado.</p>
+                }
+                else
+                {
+                    <table class="table table-sm table-dark align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th class="text-end">Valor</th>
+                                <th class="text-center">Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.ItensAtuais)
+                            {
+                                <tr>
+                                    <td class="small">@item.Produto?.Nome</td>
+                                    <td class="small text-end">@item.SubTotal.ToString("C")</td>
+                                    <td class="text-center">
+                                        <button type="button" class="btn btn-sm btn-outline-light py-0 px-1"
+                                                data-bs-toggle="modal" data-bs-target="#modalExcluirItem"
+                                                data-id="@item.Id"
+                                                data-nome="@item.Produto?.Nome">
+                                            <i class="bi bi-x-lg"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+
+            <hr class="border-light" />
+
+            <div class="d-flex justify-content-between mb-3">
+                <span>Total:</span>
+                <strong class="fs-5">@Model.Total.ToString("C")</strong>
+            </div>
+
+            <a asp-action="VenderMesa" asp-route-id="@Model.MesaId" class="btn btn-light w-100">
+                <i class="bi bi-arrow-left"></i> Voltar ao Pedido
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Excluir Item -->
+<div class="modal fade" id="modalExcluirItem" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center py-4">
+                <p class="mb-3">Deseja excluir o produto selecionado?</p>
+                <p class="fw-bold" id="itemExcluirNome"></p>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-lg"></i> Cancelar
+                </button>
+                <form asp-action="RemoverItemAdicao" method="post" id="formExcluirItem">
+                    <input type="hidden" name="itemId" id="itemExcluirId" />
+                    <input type="hidden" name="pedidoId" value="@Model.PedidoId" />
+                    <button type="submit" class="btn btn-dark">
+                        <i class="bi bi-check-lg"></i> Confirmar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        var modalExcluir = document.getElementById('modalExcluirItem');
+        modalExcluir.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget;
+            document.getElementById('itemExcluirId').value = button.getAttribute('data-id');
+            document.getElementById('itemExcluirNome').textContent = button.getAttribute('data-nome');
+        });
+    </script>
+}

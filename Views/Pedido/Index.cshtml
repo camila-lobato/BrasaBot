@@ -1,0 +1,204 @@
+﻿@model BrasaBot.ViewModels.PedidoIndexViewModel
+
+@{
+    ViewData["Title"] = "Pedidos";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="mb-0">Pedidos</h2>
+        <small class="text-muted">Gerencie os pedidos.</small>
+    </div>
+</div>
+
+@if (TempData["Sucesso"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Sucesso"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<!-- Abas -->
+<ul class="nav nav-tabs mb-4" id="abasPedidos" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="aba-mesa-tab" data-bs-toggle="tab" data-bs-target="#aba-mesa" type="button" role="tab">
+            <i class="bi bi-table"></i> Mesa
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="aba-delivery-tab" data-bs-toggle="tab" data-bs-target="#aba-delivery" type="button" role="tab">
+            <i class="bi bi-truck"></i> Delivery
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="aba-balcao-tab" data-bs-toggle="tab" data-bs-target="#aba-balcao" type="button" role="tab">
+            <i class="bi bi-shop"></i> Balcão
+        </button>
+    </li>
+</ul>
+
+<div class="tab-content" id="conteudoAbas">
+
+    <!-- ===== ABA MESA ===== -->
+    <div class="tab-pane fade show active" id="aba-mesa" role="tabpanel">
+
+        <!-- Disponíveis -->
+        <div class="mb-4">
+            <h6 class="text-muted mb-3">
+                <span class="badge bg-success">&nbsp;</span> Disponíveis
+                <span class="text-muted small">(@Model.MesasDisponiveis.Count)</span>
+            </h6>
+            <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-5 g-3">
+                @foreach (var mesa in Model.MesasDisponiveis)
+                {
+                    <div class="col">
+                        <a asp-action="VenderMesa" asp-route-id="@mesa.Id"
+                           class="card text-decoration-none text-dark h-100 border-success border-2 mesa-card">
+                            <div class="card-body text-center p-2">
+                                <h4 class="mb-1 fw-bold text-success">@mesa.Numero</h4>
+                                <small class="text-muted" style="font-size: 0.7rem;">Mesa</small>
+                            </div>
+                        </a>
+                    </div>
+                }
+                @if (!Model.MesasDisponiveis.Any())
+                {
+                    <div class="col-12">
+                        <p class="text-muted">Nenhuma mesa disponível.</p>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Ocupadas -->
+        <div class="mb-4">
+            <h6 class="text-muted mb-3">
+                <span class="badge bg-warning">&nbsp;</span> Ocupadas
+                <span class="text-muted small">(@Model.MesasOcupadas.Count)</span>
+            </h6>
+            <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-5 g-3">
+                @foreach (var mesa in Model.MesasOcupadas)
+                {
+                    <div class="col">
+                        <a asp-action="VenderMesa" asp-route-id="@mesa.Id"
+                           class="card text-decoration-none text-dark h-100 border-warning border-2 mesa-card">
+                            <div class="card-body text-center p-2">
+                                <h4 class="mb-1 fw-bold text-warning">@mesa.Numero</h4>
+                                <small class="text-muted" style="font-size: 0.7rem;">Mesa</small>
+                            </div>
+                        </a>
+                    </div>
+                }
+                @if (!Model.MesasOcupadas.Any())
+                {
+                    <div class="col-12">
+                        <p class="text-muted">Nenhuma mesa ocupada.</p>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Em Fechamento -->
+        <div class="mb-4">
+            <h6 class="text-muted mb-3">
+                <span class="badge bg-danger">&nbsp;</span> Em Fechamento
+                <span class="text-muted small">(@Model.MesasEmFechamento.Count)</span>
+            </h6>
+            <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-5 g-3">
+                @foreach (var mesa in Model.MesasEmFechamento)
+                {
+                    <div class="col">
+                        <a asp-action="VenderMesa" asp-route-id="@mesa.Id"
+                           class="card text-decoration-none text-dark h-100 border-danger border-2 mesa-card">
+                            <div class="card-body text-center p-2">
+                                <h4 class="mb-1 fw-bold text-danger">@mesa.Numero</h4>
+                                <small class="text-muted" style="font-size: 0.7rem;">Mesa</small>
+                            </div>
+                        </a>
+                    </div>
+                }
+                @if (!Model.MesasEmFechamento.Any())
+                {
+                    <div class="col-12">
+                        <p class="text-muted">Nenhuma mesa em fechamento.</p>
+                    </div>
+                }
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ===== ABA DELIVERY ===== -->
+    <div class="tab-pane fade" id="aba-delivery" role="tabpanel">
+        <div class="row g-3">
+            <div class="col-12 mb-3">
+                <a asp-action="NovoDelivery" class="btn btn-dark">
+                    <i class="bi bi-plus-lg"></i> Novo Pedido
+                </a>
+            </div>
+
+            <div class="col-md-4">
+                <h6 class="text-muted">Em Produção</h6>
+                <div class="d-flex flex-column gap-2">
+                    @foreach (var pedido in Model.PedidosDeliveryProducao)
+                    {
+                        <a asp-action="VenderDelivery" asp-route-id="@pedido.Id" class="btn btn-outline-dark text-start">
+                            <i class="bi bi-truck"></i> Pedido #@pedido.Id - @pedido.Cliente?.Nome
+                        </a>
+                    }
+                    @if (!Model.PedidosDeliveryProducao.Any())
+                    {
+                        <span class="text-muted small">Nenhum pedido em produção.</span>
+                    }
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <h6 class="text-muted">Pronto para Entrega</h6>
+                <div class="d-flex flex-column gap-2">
+                    @foreach (var pedido in Model.PedidosDeliveryProntos)
+                    {
+                        <a asp-action="VenderDelivery" asp-route-id="@pedido.Id" class="btn btn-warning text-start">
+                            <i class="bi bi-truck"></i> Pedido #@pedido.Id - @pedido.Cliente?.Nome
+                        </a>
+                    }
+                    @if (!Model.PedidosDeliveryProntos.Any())
+                    {
+                        <span class="text-muted small">Nenhum pedido pronto.</span>
+                    }
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <h6 class="text-muted">Em Entrega</h6>
+                <div class="d-flex flex-column gap-2">
+                    @foreach (var pedido in Model.PedidosDeliveryEmEntrega)
+                    {
+                        <a asp-action="VenderDelivery" asp-route-id="@pedido.Id" class="btn btn-danger text-start">
+                            <i class="bi bi-truck"></i> Pedido #@pedido.Id - @pedido.Cliente?.Nome
+                        </a>
+                    }
+                    @if (!Model.PedidosDeliveryEmEntrega.Any())
+                    {
+                        <span class="text-muted small">Nenhum pedido em entrega.</span>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ABA BALCÃO ===== -->
+    <div class="tab-pane fade" id="aba-balcao" role="tabpanel">
+        <div class="row">
+            <div class="col-12">
+                <h5>Nova Venda no Balcão</h5>
+                <p class="text-muted">Clique no botão abaixo para iniciar uma nova venda.</p>
+                <a asp-action="NovoBalcao" class="btn btn-dark btn-lg">
+                    <i class="bi bi-plus-lg"></i> Nova Venda
+                </a>
+            </div>
+        </div>
+    </div>
+
+</div>

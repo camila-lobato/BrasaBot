@@ -1,0 +1,178 @@
+﻿@model BrasaBot.ViewModels.FecharContaViewModel
+
+@{
+    ViewData["Title"] = "Fechar Conta";
+}
+
+@if (TempData["Erro"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["Erro"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="mb-0">Fechar Conta</h2>
+        <small class="text-muted">Gerencie o pagamento.</small>
+    </div>
+    @if (Model.Pedido.MesaId.HasValue)
+    {
+        <a asp-action="VenderMesa" asp-route-id="@Model.Pedido.MesaId" class="btn btn-outline-dark">
+            <i class="bi bi-arrow-left"></i> Voltar
+        </a>
+    }
+    else
+    {
+        <a asp-action="Index" class="btn btn-outline-dark">
+            <i class="bi bi-arrow-left"></i> Voltar
+        </a>
+    }
+</div>
+
+<div class="row g-3">
+    <!-- Coluna principal: formas de pagamento -->
+    <div class="col-md-8">
+        <div class="card p-4">
+            <h6 class="mb-3">Selecione a forma de pagamento</h6>
+
+            <form asp-action="FecharConta" method="post" id="formFecharConta">
+                <input type="hidden" name="pedidoId" value="@Model.Pedido.Id" />
+
+                <div class="row g-3">
+                    <!-- Dinheiro -->
+                    <div class="col-md-6">
+                        <label class="form-label">
+                            <i class="bi bi-cash"></i> Dinheiro
+                        </label>
+                        <input type="text" name="valorDinheiro" class="form-control mask-money" value="0,00" />
+                    </div>
+
+                    <!-- Crédito -->
+                    <div class="col-md-6">
+                        <label class="form-label">
+                            <i class="bi bi-credit-card"></i> Cartão de Crédito
+                        </label>
+                        <input type="text" name="valorCredito" class="form-control mask-money" value="0,00" />
+                    </div>
+
+                    <!-- Débito -->
+                    <div class="col-md-6">
+                        <label class="form-label">
+                            <i class="bi bi-credit-card-2-front"></i> Cartão de Débito
+                        </label>
+                        <input type="text" name="valorDebito" class="form-control mask-money" value="0,00" />
+                    </div>
+
+                    <!-- PIX -->
+                    <div class="col-md-6">
+                        <label class="form-label">
+                            <i class="bi bi-phone"></i> PIX
+                        </label>
+                        <input type="text" name="valorPix" class="form-control mask-money" value="0,00" />
+                    </div>
+
+                    <!-- Desconto -->
+                    <div class="col-md-6">
+                        <label class="form-label">
+                            <i class="bi bi-tag"></i> Desconto
+                        </label>
+                        <input type="text" name="desconto" class="form-control mask-money" value="0,00" />
+                    </div>
+                </div>
+
+                <hr class="my-4" />
+
+                <!-- Resumo -->
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Total do pedido:</span>
+                    <strong>@Model.TotalPedido.ToString("C")</strong>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Total pago:</span>
+                    <strong id="totalPago">R$ 0,00</strong>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Valor restante:</span>
+                    <strong class="text-danger" id="valorRestante">@Model.TotalPedido.ToString("C")</strong>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 mt-4">
+                    <button type="button" class="btn btn-outline-secondary" onclick="history.back()">
+                        <i class="bi bi-x-lg"></i> Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-dark" id="btnFinalizar">
+                        <i class="bi bi-check-lg"></i> Fechar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Coluna lateral: resumo do pedido -->
+    <div class="col-md-4">
+        <div class="card p-3" style="background-color: #1B2E21; color: white;">
+            <h6 class="mb-3">Resumo do Pedido</h6>
+
+            <div style="max-height: 300px; overflow-y: auto;">
+                <table class="table table-sm table-dark mb-0">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th class="text-end">Valor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Itens)
+                        {
+                            <tr>
+                                <td class="small">@item.Produto?.Nome</td>
+                                <td class="small text-end">@item.SubTotal.ToString("C")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <hr class="border-light" />
+
+            <div class="d-flex justify-content-between">
+                <span>Total:</span>
+                <strong class="fs-5">@Model.TotalPedido.ToString("C")</strong>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function calcularTotal() {
+            var dinheiro = parseFloat($('input[name="valorDinheiro"]').maskMoney('unmasked')[0]) || 0;
+            var credito = parseFloat($('input[name="valorCredito"]').maskMoney('unmasked')[0]) || 0;
+            var debito = parseFloat($('input[name="valorDebito"]').maskMoney('unmasked')[0]) || 0;
+            var pix = parseFloat($('input[name="valorPix"]').maskMoney('unmasked')[0]) || 0;
+            var desconto = parseFloat($('input[name="desconto"]').maskMoney('unmasked')[0]) || 0;
+
+            var totalPago = dinheiro + credito + debito + pix;
+            var totalPedido = @Model.TotalPedido.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            var restante = totalPedido - desconto - totalPago;
+
+            $('#totalPago').text('R$ ' + totalPago.toFixed(2).replace('.', ','));
+            $('#valorRestante').text('R$ ' + restante.toFixed(2).replace('.', ','));
+
+            if (restante > 0.01) {
+                $('#btnFinalizar').prop('disabled', true);
+                $('#valorRestante').removeClass('text-success').addClass('text-danger');
+            } else {
+                $('#btnFinalizar').prop('disabled', false);
+                $('#valorRestante').removeClass('text-danger').addClass('text-success');
+            }
+        }
+
+        $(document).ready(function () {
+            // Recalcula sempre que um campo muda
+            $('input.mask-money').on('keyup change blur', calcularTotal);
+        });
+    </script>
+}

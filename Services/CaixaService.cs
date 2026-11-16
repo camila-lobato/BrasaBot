@@ -149,5 +149,25 @@ namespace BrasaBot.Services
 
             await _caixaRepository.AtualizarAsync(caixa);
         }
+
+        public async Task RegistrarMovimentacaoAsync(int caixaId, decimal valor, string tipo, string formaPagamento, string? observacao)
+        {
+            var caixa = await _caixaRepository.ObterPorIdAsync(caixaId);
+            if (caixa == null || caixa.Status != "Aberto")
+                throw new InvalidOperationException("O caixa não está aberto.");
+
+            var mov = new MovimentacaoCaixa
+            {
+                CaixaId = caixaId,
+                DataHora = DateTime.Now,
+                Valor = valor,
+                Tipo = tipo,
+                FormaPagamento = formaPagamento,
+                Observacao = observacao
+            };
+
+            await _movimentacaoRepository.AdicionarAsync(mov);
+            await AtualizarTotaisAsync(caixaId);
+        }
     }
 }

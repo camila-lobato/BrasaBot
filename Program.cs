@@ -40,6 +40,9 @@ namespace BrasaBot
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             builder.Services.AddScoped<ICaixaRepository, CaixaRepository>();
             builder.Services.AddScoped<IMovimentacaoCaixaRepository, MovimentacaoCaixaRepository>();
+            builder.Services.AddScoped<IPedidoRepository, PedidoRepository>();
+            builder.Services.AddScoped<IMesaRepository, MesaRepository>();
+            builder.Services.AddScoped<ICategoriaService, CategoriaService>();
 
             // === SERVICES ===
             builder.Services.AddScoped<IFuncionarioService, FuncionarioService>();
@@ -54,6 +57,7 @@ namespace BrasaBot
             builder.Services.AddScoped<IPerfilService, PerfilService>();
             builder.Services.AddScoped<ICaixaService, CaixaService>();
             builder.Services.AddScoped<ICargoService, CargoService>();
+            builder.Services.AddScoped<IPedidoService, PedidoService>();
 
             // AUTENTICAÇÃO POR COOKIE
             builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

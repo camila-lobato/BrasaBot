@@ -14,5 +14,7 @@ namespace BrasaBot.Services.Interfaces
         Task<bool> ExcluirMovimentacaoAsync(int movimentacaoId);
         Task FecharCaixaAsync(int caixaId, FechamentoCaixaViewModel vm);
         Task AtualizarTotaisAsync(int caixaId);
+        Task RegistrarMovimentacaoAsync(int caixaId, decimal valor, string tipo, string formaPagamento, string? observacao);
+
     }
 }
