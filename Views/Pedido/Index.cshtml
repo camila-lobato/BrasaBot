@@ -194,9 +194,12 @@
             <div class="col-12">
                 <h5>Nova Venda no Balcão</h5>
                 <p class="text-muted">Clique no botão abaixo para iniciar uma nova venda.</p>
-                <a asp-action="NovoBalcao" class="btn btn-dark btn-lg">
-                    <i class="bi bi-plus-lg"></i> Nova Venda
-                </a>
+                <form asp-action="NovaVendaBalcao" method="post">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-dark btn-lg">
+                        <i class="bi bi-plus-lg"></i> Nova Venda
+                    </button>
+                </form>
             </div>
         </div>
     </div>

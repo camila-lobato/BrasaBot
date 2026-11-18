@@ -204,5 +204,139 @@ namespace BrasaBot.Controllers
             TempData["Sucesso"] = "Pedido finalizado com sucesso!";
             return RedirectToAction(nameof(Index));
         }
+
+        // GET: /Pedido/NovoDelivery
+        public async Task<IActionResult> NovoDelivery(int? clienteId)
+        {
+            var clienteService = HttpContext.RequestServices.GetService<IClienteService>();
+            if (clienteService == null)
+                return NotFound();
+
+            var clientes = await clienteService.ObterTodosAsync();
+
+            var vm = new NovoDeliveryViewModel
+            {
+                Clientes = clientes.Select(c => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
+                {
+                    Value = c.Id.ToString(),
+                    Text = $"{c.Nome} - {c.Telefone}"
+                }),
+                ClienteId = clienteId ?? 0
+            };
+
+            return View(vm);
+        }
+
+        // POST: /Pedido/NovoDelivery
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> NovoDelivery(int clienteId)
+        {
+            if (clienteId <= 0)
+            {
+                TempData["Erro"] = "Selecione um cliente.";
+                return RedirectToAction(nameof(NovoDelivery));
+            }
+
+            var funcionarioId = ObterFuncionarioId();
+            var pedido = await _pedidoService.CriarPedidoDeliveryAsync(clienteId, funcionarioId);
+
+            if (pedido == null)
+            {
+                TempData["Erro"] = "Erro ao criar pedido de delivery.";
+                return RedirectToAction(nameof(NovoDelivery));
+            }
+
+            return RedirectToAction("AdicionarProduto", new { pedidoId = pedido.Id });
+        }
+
+        // GET: /Pedido/VenderDelivery/5
+        public async Task<IActionResult> VenderDelivery(int id)
+        {
+            var pedido = await _pedidoService.ObterPorIdAsync(id);
+            if (pedido == null || pedido.Tipo != "Delivery")
+                return NotFound();
+
+            var vm = new NovoDeliveryViewModel
+            {
+                PedidoId = pedido.Id,
+                ClienteId = pedido.ClienteId,
+                ClienteNome = pedido.Cliente?.Nome ?? "",
+                ClienteCpf = pedido.Cliente?.CPF ?? "",
+                ClienteTelefone = pedido.Cliente?.Telefone ?? "",
+                Logradouro = pedido.Cliente?.Logradouro ?? "",
+                Numero = pedido.Cliente?.Numero ?? "",
+                Bairro = pedido.Cliente?.Bairro ?? "",
+                CEP = pedido.Cliente?.CEP ?? "",
+                TaxaEntrega = pedido.TaxaEntrega,
+                Total = pedido.Total,
+                Itens = pedido.ItensPedido.ToList()
+            };
+
+            ViewBag.Status = pedido.Status;
+            return View("VenderDelivery", vm);
+        }
+
+        // POST: /Pedido/EnviarDelivery/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EnviarDelivery(int id)
+        {
+            var sucesso = await _pedidoService.EnviarParaProducaoAsync(id);
+
+            if (sucesso)
+                TempData["Sucesso"] = "Pedido enviado!";
+            else
+                TempData["Erro"] = "Erro ao enviar pedido.";
+
+            return RedirectToAction("VenderDelivery", new { id });
+        }
+
+        // POST: /Pedido/EntregarDelivery/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EntregarDelivery(int id)
+        {
+            var sucesso = await _pedidoService.MarcarComoEmEntregaAsync(id);
+
+            if (sucesso)
+                TempData["Sucesso"] = "Pedido em entrega!";
+            else
+                TempData["Erro"] = "Erro ao marcar pedido.";
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        // POST: /Pedido/MudarParaBalcao/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> MudarParaBalcao(int id)
+        {
+            var sucesso = await _pedidoService.MudarParaBalcaoAsync(id);
+
+            if (sucesso)
+                TempData["Sucesso"] = "Pedido mudado para Balcão!";
+            else
+                TempData["Erro"] = "Erro ao mudar pedido.";
+
+            return RedirectToAction("VenderDelivery", new { id });
+        }
+
+        // POST: /Pedido/NovaVendaBalcao
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> NovaVendaBalcao()
+        {
+            var funcionarioId = ObterFuncionarioId();
+            var pedido = await _pedidoService.CriarPedidoBalcaoAsync(funcionarioId);
+
+            if (pedido == null)
+            {
+                TempData["Erro"] = "Erro ao criar venda no balcão.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            return RedirectToAction("AdicionarProduto", new { pedidoId = pedido.Id });
+        }
     }
 }

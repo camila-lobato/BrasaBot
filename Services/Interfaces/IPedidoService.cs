@@ -12,5 +12,10 @@ namespace BrasaBot.Services.Interfaces
         Task<Pedido?> AdicionarProdutoAsync(int pedidoId, int produtoId, int quantidade);
         Task<Pedido?> ObterPorIdAsync(int pedidoId);
         Task<bool> FecharPedidoAsync(int pedidoId, Dictionary<string, decimal> pagamentos, decimal desconto);
+        Task<Pedido?> CriarPedidoDeliveryAsync(int clienteId, int funcionarioId);
+        Task<bool> EnviarParaProducaoAsync(int pedidoId);
+        Task<bool> MarcarComoEmEntregaAsync(int pedidoId);
+        Task<bool> MudarParaBalcaoAsync(int pedidoId);
+        Task<Pedido?> CriarPedidoBalcaoAsync(int funcionarioId);
     }
 }

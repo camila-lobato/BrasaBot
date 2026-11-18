@@ -12,13 +12,15 @@ namespace BrasaBot.Services
         private readonly IMesaRepository _mesaRepository;
         private readonly IProdutoRepository _produtoRepository;
         private readonly ICaixaService _caixaService;
+        private readonly IServicoService _servicoService;
 
-        public PedidoService(IPedidoRepository pedidoRepository, IMesaRepository mesaRepository, IProdutoRepository produtoRepository, ICaixaService caixaService)
+        public PedidoService(IPedidoRepository pedidoRepository, IMesaRepository mesaRepository, IProdutoRepository produtoRepository, ICaixaService caixaService, IServicoService servicoService)
         {
             _pedidoRepository = pedidoRepository;
             _mesaRepository = mesaRepository;
             _produtoRepository = produtoRepository;
             _caixaService = caixaService;
+            _servicoService = servicoService;
         }
 
         public async Task<PedidoIndexViewModel> ObterIndexAsync()
@@ -182,6 +184,89 @@ namespace BrasaBot.Services
             }
 
             return true;
+        }
+
+        public async Task<Pedido?> CriarPedidoDeliveryAsync(int clienteId, int funcionarioId)
+        {
+            // Busca o serviço "Entrega" para a taxa
+            var servicos = await _servicoService.ObterTodosAsync();
+            var servicoEntrega = servicos.FirstOrDefault(s => s.Nome.ToLower().Contains("entrega"));
+
+            var novoPedido = new Pedido
+            {
+                Tipo = "Delivery",
+                Status = "Em Produção",
+                DataCriacao = DateTime.Now,
+                ClienteId = clienteId,
+                FuncionarioId = funcionarioId,
+                MesaId = null,
+                Desconto = 0,
+                TaxaEntrega = servicoEntrega?.Valor ?? 3.00m,
+                Total = servicoEntrega?.Valor ?? 3.00m
+            };
+
+            await _pedidoRepository.AdicionarAsync(novoPedido);
+            return novoPedido;
+        }
+
+        public async Task<bool> EnviarParaProducaoAsync(int pedidoId)
+        {
+            var pedido = await _pedidoRepository.ObterPorIdComItensAsync(pedidoId);
+            if (pedido == null || pedido.Tipo != "Delivery")
+                return false;
+
+            if (!pedido.ItensPedido.Any())
+                return false;
+
+            pedido.Status = "Pronto para Entrega";
+            await _pedidoRepository.AtualizarAsync(pedido);
+            return true;
+        }
+
+        public async Task<bool> MarcarComoEmEntregaAsync(int pedidoId)
+        {
+            var pedido = await _pedidoRepository.ObterPorIdComItensAsync(pedidoId);
+            if (pedido == null || pedido.Tipo != "Delivery")
+                return false;
+
+            pedido.Status = "Em Entrega";
+            await _pedidoRepository.AtualizarAsync(pedido);
+            return true;
+        }
+
+        public async Task<bool> MudarParaBalcaoAsync(int pedidoId)
+        {
+            var pedido = await _pedidoRepository.ObterPorIdComItensAsync(pedidoId);
+            if (pedido == null || pedido.Tipo != "Delivery")
+                return false;
+
+            // Remove a taxa de entrega e recalcula o total
+            pedido.Tipo = "Balcão";
+            pedido.TaxaEntrega = 0;
+            pedido.Total = pedido.ItensPedido.Sum(i => i.SubTotal) - pedido.Desconto;
+            if (pedido.Total < 0) pedido.Total = 0;
+
+            await _pedidoRepository.AtualizarAsync(pedido);
+            return true;
+        }
+
+        public async Task<Pedido?> CriarPedidoBalcaoAsync(int funcionarioId)
+        {
+            var novoPedido = new Pedido
+            {
+                Tipo = "Balcão",
+                Status = "Aberto",
+                DataCriacao = DateTime.Now,
+                ClienteId = 2,           // Consumidor Final
+                FuncionarioId = funcionarioId,
+                MesaId = null,
+                Desconto = 0,
+                TaxaEntrega = 0,
+                Total = 0
+            };
+
+            await _pedidoRepository.AdicionarAsync(novoPedido);
+            return novoPedido;
         }
     }
 }

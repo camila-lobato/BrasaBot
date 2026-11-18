@@ -1,0 +1,139 @@
+﻿@model BrasaBot.ViewModels.NovoDeliveryViewModel
+@using BrasaBot.Models
+
+@{
+    ViewData["Title"] = $"Pedido #{Model.PedidoId}";
+    var status = ViewBag.Status as string;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="mb-0">Pedido #@Model.PedidoId</h2>
+        <small class="text-muted">Gerencie os pedidos.</small>
+    </div>
+    <a asp-action="Index" class="btn btn-outline-dark">
+        <i class="bi bi-arrow-left"></i> Voltar
+    </a>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-8">
+        <div class="card p-4">
+            <h6 class="mb-3">Cliente</h6>
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <label class="form-label">Nome</label>
+                    <input class="form-control" value="@Model.ClienteNome" disabled />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">CPF</label>
+                    <input class="form-control" value="@Model.ClienteCpf" disabled />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Telefone</label>
+                    <input class="form-control" value="@Model.ClienteTelefone" disabled />
+                </div>
+            </div>
+
+            <h6 class="mb-3">Endereço</h6>
+            <div class="row g-3 mb-4">
+                <div class="col-md-5">
+                    <label class="form-label">Logradouro</label>
+                    <input class="form-control" value="@Model.Logradouro" disabled />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Número</label>
+                    <input class="form-control" value="@Model.Numero" disabled />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Bairro</label>
+                    <input class="form-control" value="@Model.Bairro" disabled />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">CEP</label>
+                    <input class="form-control" value="@Model.CEP" disabled />
+                </div>
+            </div>
+
+            <h6 class="mb-3">Pedido</h6>
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th class="text-end">Valor</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Itens)
+                    {
+                        <tr>
+                            <td>@item.Produto?.Nome</td>
+                            <td class="text-end">@item.SubTotal.ToString("C")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card p-3 sticky-top" style="top: 20px; background-color: #1B2E21; color: white;">
+            <h6 class="mb-3">Pedido #@Model.PedidoId</h6>
+
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span>Taxa:</span>
+                <span>@Model.TaxaEntrega.ToString("C")</span>
+            </div>
+
+            <hr class="border-light" />
+
+            <div class="d-flex justify-content-between mb-3">
+                <span>Total:</span>
+                <strong class="fs-5">@Model.Total.ToString("C")</strong>
+            </div>
+
+            <div class="d-grid gap-2">
+                <a asp-action="AdicionarProduto" asp-route-pedidoId="@Model.PedidoId"
+                   class="btn btn-light">
+                    <i class="bi bi-plus-lg"></i> Adicionar produto
+                </a>
+
+                @if (status == "Em Produção")
+                {
+                    <form asp-action="EnviarDelivery" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@Model.PedidoId" />
+                        <button type="submit" class="btn btn-warning w-100">
+                            <i class="bi bi-truck"></i> Enviar
+                        </button>
+                    </form>
+                }
+                else if (status == "Pronto para Entrega")
+                {
+                    <form asp-action="EntregarDelivery" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@Model.PedidoId" />
+                        <button type="submit" class="btn btn-success w-100">
+                            <i class="bi bi-truck"></i> Entregar
+                        </button>
+                    </form>
+                }
+
+                <form asp-action="MudarParaBalcao" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@Model.PedidoId" />
+                    <button type="submit" class="btn btn-outline-light w-100">
+                        <i class="bi bi-shop"></i> Mudar para Balcão
+                    </button>
+                </form>
+
+                @if (status == "Em Entrega" || status == "Pronto para Entrega")
+                {
+                    <a asp-action="FecharConta" asp-route-id="@Model.PedidoId" class="btn btn-danger w-100">
+                        <i class="bi bi-cash"></i> Pagar
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+</div>

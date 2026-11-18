@@ -36,6 +36,12 @@
             <i class="bi bi-arrow-left"></i> Voltar à Mesa
         </a>
     }
+    else if (Model.TipoPedido == "Delivery")
+    {
+        <a asp-action="VenderDelivery" asp-route-id="@Model.PedidoId" class="btn btn-outline-dark">
+            <i class="bi bi-arrow-left"></i> Voltar ao Pedido
+        </a>
+    }
     else
     {
         <a asp-action="Index" class="btn btn-outline-dark">
@@ -115,7 +121,42 @@
     <!-- Painel lateral: itens do pedido -->
     <div class="col-md-4">
         <div class="card p-3 sticky-top" style="top: 20px; background-color: #1B2E21; color: white;">
-            <h6 class="mb-3">Pedido</h6>
+            <h6 class="mb-3">
+                @if (Model.TipoPedido == "Mesa" && Model.MesaId.HasValue)
+                {
+                    <a asp-action="VenderMesa" asp-route-id="@Model.MesaId" class="btn btn-light w-100">
+                        <i class="bi bi-arrow-left"></i> Voltar ao Pedido
+                    </a>
+                }
+                else if (Model.TipoPedido == "Delivery")
+                {
+                    <a asp-action="VenderDelivery" asp-route-id="@Model.PedidoId" class="btn btn-light w-100">
+                        <i class="bi bi-arrow-left"></i> Voltar ao Pedido
+                    </a>
+                }
+                else if (Model.TipoPedido == "Balcão")
+                {
+                    <a asp-action="FecharConta" asp-route-id="@Model.PedidoId" class="btn btn-danger w-100">
+                        <i class="bi bi-cash"></i> Pagar
+                    </a>
+                }
+                else
+                {
+                    <a asp-action="Index" class="btn btn-light w-100">
+                        <i class="bi bi-arrow-left"></i> Voltar
+                    </a>
+                }
+                <h6 class="mb-3">
+                    @if (Model.TipoPedido == "Mesa")
+                    {
+                        <span>Mesa @Model.MesaId</span>
+                    }
+                    else
+                    {
+                        <span>Pedido #@Model.PedidoId</span>
+                    }
+                </h6>
+            </h6>
 
             <!-- Grade de itens -->
             <div style="max-height: 300px; overflow-y: auto;">
@@ -161,9 +202,22 @@
                 <strong class="fs-5">@Model.Total.ToString("C")</strong>
             </div>
 
-            <a asp-action="VenderMesa" asp-route-id="@Model.MesaId" class="btn btn-light w-100">
-                <i class="bi bi-arrow-left"></i> Voltar ao Pedido
-            </a>
+            @if (Model.TipoPedido == "Mesa" && Model.MesaId.HasValue)
+            {
+                <a asp-action="VenderMesa" asp-route-id="@Model.MesaId" ...>Voltar à Mesa</a>
+            }
+            else if (Model.TipoPedido == "Delivery")
+            {
+                <a asp-action="VenderDelivery" asp-route-id="@Model.PedidoId" ...>Voltar ao Pedido</a>
+            }
+            else if (Model.TipoPedido == "Balcão")
+            {
+                <a asp-action="FecharConta" asp-route-id="@Model.PedidoId" ...>Voltar ao Pedido</a>
+            }
+            else
+            {
+                <a asp-action="Index" ...>Voltar</a>
+            }
         </div>
     </div>
 </div>
