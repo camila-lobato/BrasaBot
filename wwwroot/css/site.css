@@ -107,3 +107,11 @@ body {
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15) !important;
         background-color: #f8f9fa;
     }
+
+/* Asterisco em campos obrigatórios */
+.form-label.required::after,
+label.required::after {
+    content: " *";
+    color: #dc3545;
+    font-weight: bold;
+}

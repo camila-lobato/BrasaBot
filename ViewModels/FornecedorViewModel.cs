@@ -11,6 +11,7 @@ namespace BrasaBot.ViewModels
         [Display(Name = "Nome")]
         public string Nome { get; set; } = string.Empty;
 
+        [Required(ErrorMessage = "O campo CNPJ é obrigatório.")] 
         [StringLength(18)]
         [Display(Name = "CNPJ")]
         public string? CNPJ { get; set; }

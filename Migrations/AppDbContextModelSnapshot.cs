@@ -47,7 +47,8 @@ namespace BrasaBot.Migrations
                         .HasColumnType("varchar(255)");
 
                     b.Property<decimal>("SaldoInicial")
-                        .HasColumnType("decimal(65,30)");
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -55,13 +56,16 @@ namespace BrasaBot.Migrations
                         .HasColumnType("varchar(20)");
 
                     b.Property<decimal>("Total")
-                        .HasColumnType("decimal(65,30)");
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
 
                     b.Property<decimal>("TotalEntradas")
-                        .HasColumnType("decimal(65,30)");
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
 
                     b.Property<decimal>("TotalSaidas")
-                        .HasColumnType("decimal(65,30)");
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
 
                     b.HasKey("Id");
 
@@ -187,7 +191,8 @@ namespace BrasaBot.Migrations
                         .HasColumnType("varchar(20)");
 
                     b.Property<decimal>("Valor")
-                        .HasColumnType("decimal(65,30)");
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
 
                     b.Property<DateTime>("Vencimento")
                         .HasColumnType("datetime(6)");
@@ -317,10 +322,12 @@ namespace BrasaBot.Migrations
                         .HasColumnType("tinyint(1)");
 
                     b.Property<decimal>("EstoqueAtualQtd")
-                        .HasColumnType("decimal(65,30)");
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
 
                     b.Property<decimal>("EstoqueMinimo")
-                        .HasColumnType("decimal(65,30)");
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
 
                     b.Property<int?>("FornecedorId")
                         .HasColumnType("int");
@@ -360,10 +367,12 @@ namespace BrasaBot.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal>("SubTotal")
-                        .HasColumnType("decimal(65,30)");
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
 
                     b.Property<decimal>("ValorUnitario")
-                        .HasColumnType("decimal(65,30)");
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
 
                     b.HasKey("Id");
 
@@ -427,7 +436,8 @@ namespace BrasaBot.Migrations
                         .HasColumnType("varchar(20)");
 
                     b.Property<decimal>("Valor")
-                        .HasColumnType("decimal(65,30)");
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
 
                     b.HasKey("Id");
 
@@ -460,7 +470,8 @@ namespace BrasaBot.Migrations
                         .HasColumnType("varchar(255)");
 
                     b.Property<decimal>("Quantidade")
-                        .HasColumnType("decimal(65,30)");
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
 
                     b.Property<string>("Tipo")
                         .IsRequired()
@@ -491,7 +502,8 @@ namespace BrasaBot.Migrations
                         .HasColumnType("datetime(6)");
 
                     b.Property<decimal>("Desconto")
-                        .HasColumnType("decimal(65,30)");
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
 
                     b.Property<int>("FuncionarioId")
                         .HasColumnType("int");
@@ -505,7 +517,8 @@ namespace BrasaBot.Migrations
                         .HasColumnType("varchar(20)");
 
                     b.Property<decimal>("TaxaEntrega")
-                        .HasColumnType("decimal(65,30)");
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
 
                     b.Property<string>("Tipo")
                         .IsRequired()
@@ -513,7 +526,8 @@ namespace BrasaBot.Migrations
                         .HasColumnType("varchar(20)");
 
                     b.Property<decimal>("Total")
-                        .HasColumnType("decimal(65,30)");
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
 
                     b.HasKey("Id");
 
@@ -550,7 +564,8 @@ namespace BrasaBot.Migrations
                         .HasColumnType("varchar(100)");
 
                     b.Property<decimal>("Valor")
-                        .HasColumnType("decimal(65,30)");
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
 
                     b.HasKey("Id");
 
@@ -568,7 +583,8 @@ namespace BrasaBot.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal>("Quantidade")
-                        .HasColumnType("decimal(65,30)");
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
 
                     b.Property<string>("Unidade")
                         .IsRequired()
@@ -598,7 +614,8 @@ namespace BrasaBot.Migrations
                         .HasColumnType("varchar(100)");
 
                     b.Property<decimal>("Valor")
-                        .HasColumnType("decimal(65,30)");
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
 
                     b.HasKey("Id");
 

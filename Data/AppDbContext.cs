@@ -72,6 +72,50 @@ namespace BrasaBot.Data
                 .WithMany()
                 .HasForeignKey(f => f.CargoId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Caixa>()
+       .Property(c => c.SaldoInicial).HasPrecision(10, 2);
+            modelBuilder.Entity<Caixa>()
+                .Property(c => c.TotalEntradas).HasPrecision(10, 2);
+            modelBuilder.Entity<Caixa>()
+                .Property(c => c.TotalSaidas).HasPrecision(10, 2);
+            modelBuilder.Entity<Caixa>()
+                .Property(c => c.Total).HasPrecision(10, 2);
+
+            modelBuilder.Entity<MovimentacaoCaixa>()
+                .Property(m => m.Valor).HasPrecision(10, 2);
+
+            modelBuilder.Entity<Produto>()
+                .Property(p => p.Valor).HasPrecision(10, 2);
+
+            modelBuilder.Entity<Servico>()
+                .Property(s => s.Valor).HasPrecision(10, 2);
+
+            modelBuilder.Entity<Pedido>()
+                .Property(p => p.Total).HasPrecision(10, 2);
+            modelBuilder.Entity<Pedido>()
+                .Property(p => p.Desconto).HasPrecision(10, 2);
+            modelBuilder.Entity<Pedido>()
+                .Property(p => p.TaxaEntrega).HasPrecision(10, 2);
+
+            modelBuilder.Entity<ItemPedido>()
+                .Property(i => i.ValorUnitario).HasPrecision(10, 2);
+            modelBuilder.Entity<ItemPedido>()
+                .Property(i => i.SubTotal).HasPrecision(10, 2);
+
+            modelBuilder.Entity<Despesa>()
+                .Property(d => d.Valor).HasPrecision(10, 2);
+
+            modelBuilder.Entity<Insumo>()
+                .Property(i => i.EstoqueAtualQtd).HasPrecision(10, 2);
+            modelBuilder.Entity<Insumo>()
+                .Property(i => i.EstoqueMinimo).HasPrecision(10, 2);
+
+            modelBuilder.Entity<ProdutoInsumo>()
+                .Property(pi => pi.Quantidade).HasPrecision(10, 2);
+
+            modelBuilder.Entity<MovimentacaoEstoque>()
+                .Property(m => m.Quantidade).HasPrecision(10, 2);
         }
     }
 }

@@ -29,7 +29,7 @@
                 <a class="nav-link text-white" asp-controller="Pedido" asp-action="Index">
                     <i class="bi bi-journal-text"></i> Pedidos
                 </a>
-                <a class="nav-link text-white" href="#">
+                <a class="nav-link text-white" asp-controller="Estoque" asp-action="Index">
                     <i class="bi bi-box-seam"></i> Estoque
                 </a>
                 @if (User.IsInRole("Administrador"))

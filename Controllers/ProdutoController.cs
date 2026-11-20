@@ -1,8 +1,10 @@
 ﻿using BrasaBot.Models;
+using BrasaBot.Services;
 using BrasaBot.Services.Interfaces;
 using BrasaBot.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using static BrasaBot.ViewModels.ProdutoViewModel;
 
 namespace BrasaBot.Controllers
 {
@@ -10,11 +12,13 @@ namespace BrasaBot.Controllers
     {
         private readonly IProdutoService _produtoService;
         private readonly ICategoriaService _categoriaService;
+        private readonly IInsumoService _insumoService;
 
-        public ProdutoController(IProdutoService produtoService, ICategoriaService categoriaService)
+        public ProdutoController(IProdutoService produtoService, ICategoriaService categoriaService, IInsumoService insumoService)
         {
             _produtoService = produtoService;
             _categoriaService = categoriaService;
+            _insumoService = insumoService;
         }
 
         public async Task<IActionResult> Index(string? busca)
@@ -28,7 +32,8 @@ namespace BrasaBot.Controllers
         {
             var vm = new ProdutoViewModel
             {
-                Categorias = await ObterCategoriasSelectList()
+                Categorias = await ObterCategoriasSelectList(),
+                InsumosDisponiveis = await ObterInsumosSelectList()
             };
             return View(vm);
         }
@@ -45,7 +50,9 @@ namespace BrasaBot.Controllers
 
             try
             {
-                var caminhoFoto = await _produtoService.SalvarImagemAsync(vm.ArquivoFoto);
+                string? caminhoFoto = null;
+                if (vm.ArquivoFoto != null)
+                    caminhoFoto = await _produtoService.SalvarImagemAsync(vm.ArquivoFoto);
 
                 var produto = new Produto
                 {
@@ -57,6 +64,16 @@ namespace BrasaBot.Controllers
                 };
 
                 await _produtoService.CadastrarAsync(produto);
+                var insumos = vm.InsumosSelecionados
+                        .Where(i => i.Quantidade > 0)
+                        .Select(i => new ProdutoInsumo
+                        {
+                            InsumoId = i.InsumoId,
+                            Quantidade = i.Quantidade,
+                            Unidade = i.Unidade
+                        }).ToList();
+
+                await _produtoService.SalvarInsumosDoProdutoAsync(produto.Id, insumos);
 
                 TempData["Sucesso"] = "Sua ação foi concluída com sucesso!";
                 return RedirectToAction(nameof(Index));
@@ -67,6 +84,8 @@ namespace BrasaBot.Controllers
                 vm.Categorias = await ObterCategoriasSelectList();
                 return View(vm);
             }
+
+
         }
 
         public async Task<IActionResult> Edit(int id)
@@ -74,6 +93,8 @@ namespace BrasaBot.Controllers
             var produto = await _produtoService.ObterPorIdAsync(id);
             if (produto == null)
                 return NotFound();
+
+            var insumosDoProduto = await _produtoService.ObterInsumosDoProdutoAsync(id);
 
             var vm = new ProdutoViewModel
             {
@@ -83,7 +104,15 @@ namespace BrasaBot.Controllers
                 FotoAtual = produto.Foto,
                 CategoriaId = produto.CategoriaId,
                 Ativo = produto.Ativo,
-                Categorias = await ObterCategoriasSelectList()
+                Categorias = await ObterCategoriasSelectList(),
+                InsumosDisponiveis = await ObterInsumosSelectList(),   // ← NOVO
+                InsumosSelecionados = insumosDoProduto.Select(pi => new ProdutoInsumoItemViewModel   // ← NOVO
+                {
+                    InsumoId = pi.InsumoId,
+                    InsumoNome = pi.Insumo?.Nome ?? "",
+                    Quantidade = pi.Quantidade,
+                    Unidade = pi.Unidade
+                }).ToList()
             };
 
             return View(vm);
@@ -122,6 +151,16 @@ namespace BrasaBot.Controllers
                 produto.Ativo = vm.Ativo;
 
                 await _produtoService.AtualizarAsync(produto);
+                var insumos = vm.InsumosSelecionados
+                        .Where(i => i.Quantidade > 0)
+                        .Select(i => new ProdutoInsumo
+                        {
+                            InsumoId = i.InsumoId,
+                            Quantidade = i.Quantidade,
+                            Unidade = i.Unidade
+                        }).ToList();
+
+                await _produtoService.SalvarInsumosDoProdutoAsync(produto.Id, insumos);
 
                 TempData["Sucesso"] = "Sua ação foi concluída com sucesso!";
                 return RedirectToAction(nameof(Index));
@@ -160,6 +199,16 @@ namespace BrasaBot.Controllers
             {
                 Value = c.Id.ToString(),
                 Text = c.Nome
+            });
+        }
+
+        private async Task<IEnumerable<SelectListItem>> ObterInsumosSelectList()
+        {
+            var insumos = await _insumoService.ObterTodosAsync();
+            return insumos.Select(i => new SelectListItem
+            {
+                Value = i.Id.ToString(),
+                Text = $"{i.Nome} ({i.UnidadeMedida})"
             });
         }
     }

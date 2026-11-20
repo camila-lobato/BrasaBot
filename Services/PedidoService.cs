@@ -1,8 +1,10 @@
-﻿using BrasaBot.Models;
+﻿using BrasaBot.Data;
+using BrasaBot.Models;
 using BrasaBot.Repositories;
 using BrasaBot.Repositories.Interfaces;
 using BrasaBot.Services.Interfaces;
 using BrasaBot.ViewModels;
+using Microsoft.EntityFrameworkCore;
 
 namespace BrasaBot.Services
 {
@@ -13,14 +15,28 @@ namespace BrasaBot.Services
         private readonly IProdutoRepository _produtoRepository;
         private readonly ICaixaService _caixaService;
         private readonly IServicoService _servicoService;
+        private readonly IInsumoRepository _insumoRepository;                      
+        private readonly IMovimentacaoEstoqueRepository _movimentacaoEstoqueRepo;
+        private readonly AppDbContext _context;                                    
 
-        public PedidoService(IPedidoRepository pedidoRepository, IMesaRepository mesaRepository, IProdutoRepository produtoRepository, ICaixaService caixaService, IServicoService servicoService)
+        public PedidoService(
+            IPedidoRepository pedidoRepository,
+            IMesaRepository mesaRepository,
+            IProdutoRepository produtoRepository,
+            ICaixaService caixaService,
+            IServicoService servicoService,
+            IInsumoRepository insumoRepository,                            
+            IMovimentacaoEstoqueRepository movimentacaoEstoqueRepo,          
+            AppDbContext context)                                           
         {
             _pedidoRepository = pedidoRepository;
             _mesaRepository = mesaRepository;
             _produtoRepository = produtoRepository;
             _caixaService = caixaService;
             _servicoService = servicoService;
+            _insumoRepository = insumoRepository;                           
+            _movimentacaoEstoqueRepo = movimentacaoEstoqueRepo;             
+            _context = context;                                             
         }
 
         public async Task<PedidoIndexViewModel> ObterIndexAsync()
@@ -45,18 +61,16 @@ namespace BrasaBot.Services
             if (mesa == null)
                 return null;
 
-            // Se já tem pedido aberto, retorna
             var existente = await _pedidoRepository.ObterPedidoAbertoPorMesaAsync(mesaId);
             if (existente != null)
                 return existente;
 
-            // Cria novo pedido
             var novoPedido = new Models.Pedido
             {
                 Tipo = "Mesa",
                 Status = "Aberto",
                 DataCriacao = DateTime.Now,
-                ClienteId = 2, // Cliente padrão (o "Cliente Balcão" que criamos)
+                ClienteId = 2,
                 FuncionarioId = funcionarioId,
                 MesaId = mesaId,
                 Desconto = 0,
@@ -66,7 +80,6 @@ namespace BrasaBot.Services
 
             await _pedidoRepository.AdicionarAsync(novoPedido);
 
-            // Marca a mesa como ocupada
             mesa.Status = "Ocupada";
             await _mesaRepository.AtualizarAsync(mesa);
 
@@ -88,9 +101,8 @@ namespace BrasaBot.Services
             if (item == null)
                 return false;
 
-            await _pedidoRepository.RemoverItemAsync(item);   // ← chama o método do Repository
+            await _pedidoRepository.RemoverItemAsync(item);
 
-            // Recalcula o total
             pedido.Total = pedido.ItensPedido
                 .Where(i => i.Id != itemId)
                 .Sum(i => i.SubTotal) + pedido.TaxaEntrega - pedido.Desconto;
@@ -115,18 +127,15 @@ namespace BrasaBot.Services
             if (produto == null)
                 return null;
 
-            // Verifica se o item já está no pedido (mesmo produto)
             var itemExistente = pedido.ItensPedido.FirstOrDefault(i => i.ProdutoId == produtoId);
 
             if (itemExistente != null)
             {
-                // Aumenta a quantidade
                 itemExistente.Quantidade += quantidade;
                 itemExistente.SubTotal = itemExistente.Quantidade * itemExistente.ValorUnitario;
             }
             else
             {
-                // Cria novo item
                 var novoItem = new ItemPedido
                 {
                     PedidoId = pedidoId,
@@ -138,7 +147,6 @@ namespace BrasaBot.Services
                 pedido.ItensPedido.Add(novoItem);
             }
 
-            // Recalcula o total
             pedido.Total = pedido.ItensPedido.Sum(i => i.SubTotal) + pedido.TaxaEntrega - pedido.Desconto;
             if (pedido.Total < 0) pedido.Total = 0;
 
@@ -157,6 +165,36 @@ namespace BrasaBot.Services
             pedido.Total = Math.Max(0, subtotal - desconto);
             pedido.Status = "Fechado";
 
+          
+            foreach (var item in pedido.ItensPedido)
+            {
+                var produtoInsumos = await _context.ProdutoInsumos
+                    .Where(pi => pi.ProdutoId == item.ProdutoId)
+                    .ToListAsync();
+
+                foreach (var pi in produtoInsumos)
+                {
+                    var insumo = await _insumoRepository.ObterPorIdAsync(pi.InsumoId);
+                    if (insumo != null)
+                    {
+                        var quantidadeBaixa = pi.Quantidade * item.Quantidade;
+                        insumo.EstoqueAtualQtd -= quantidadeBaixa;
+                        await _insumoRepository.AtualizarAsync(insumo);
+
+                        await _movimentacaoEstoqueRepo.AdicionarAsync(new MovimentacaoEstoque
+                        {
+                            DataHora = DateTime.Now,
+                            Tipo = "Saida",
+                            Quantidade = quantidadeBaixa,
+                            Observacao = $"Venda pedido #{pedido.Id} - {item.Produto?.Nome}",
+                            InsumoId = pi.InsumoId,
+                            FuncionarioId = pedido.FuncionarioId
+                        });
+                    }
+                }
+            }
+            
+
             await _pedidoRepository.AtualizarAsync(pedido);
 
             if (pedido.MesaId.HasValue)
@@ -169,7 +207,6 @@ namespace BrasaBot.Services
                 }
             }
 
-            // Registra os pagamentos no caixa aberto
             var caixaAberto = await _caixaService.ObterCaixaAbertoAsync();
             if (caixaAberto != null)
             {
@@ -188,7 +225,6 @@ namespace BrasaBot.Services
 
         public async Task<Pedido?> CriarPedidoDeliveryAsync(int clienteId, int funcionarioId)
         {
-            // Busca o serviço "Entrega" para a taxa
             var servicos = await _servicoService.ObterTodosAsync();
             var servicoEntrega = servicos.FirstOrDefault(s => s.Nome.ToLower().Contains("entrega"));
 
@@ -240,7 +276,6 @@ namespace BrasaBot.Services
             if (pedido == null || pedido.Tipo != "Delivery")
                 return false;
 
-            // Remove a taxa de entrega e recalcula o total
             pedido.Tipo = "Balcão";
             pedido.TaxaEntrega = 0;
             pedido.Total = pedido.ItensPedido.Sum(i => i.SubTotal) - pedido.Desconto;
@@ -257,7 +292,7 @@ namespace BrasaBot.Services
                 Tipo = "Balcão",
                 Status = "Aberto",
                 DataCriacao = DateTime.Now,
-                ClienteId = 2,           // Consumidor Final
+                ClienteId = 2,
                 FuncionarioId = funcionarioId,
                 MesaId = null,
                 Desconto = 0,

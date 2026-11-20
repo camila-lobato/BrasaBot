@@ -21,7 +21,6 @@ namespace BrasaBot.ViewModels
         [Display(Name = "Foto")]
         public IFormFile? ArquivoFoto { get; set; }
 
-        // Caminho atual da foto (usado no Edit/Details)
         public string? FotoAtual { get; set; }
 
         [Required(ErrorMessage = "O campo Categoria é obrigatório.")]
@@ -33,5 +32,16 @@ namespace BrasaBot.ViewModels
 
         // Listas para combobox
         public IEnumerable<SelectListItem>? Categorias { get; set; }
+
+        public List<ProdutoInsumoItemViewModel> InsumosSelecionados { get; set; } = new();
+        public IEnumerable<SelectListItem>? InsumosDisponiveis { get; set; }
+    }
+
+    public class ProdutoInsumoItemViewModel
+    {
+        public int InsumoId { get; set; }
+        public string InsumoNome { get; set; } = string.Empty;
+        public decimal Quantidade { get; set; }
+        public string Unidade { get; set; } = string.Empty;
     }
 }

@@ -19,17 +19,18 @@ namespace BrasaBot.Infra
             if (string.IsNullOrWhiteSpace(valor))
                 return Task.CompletedTask;
 
-            // Remove "R$", espaços e pontos de milhar
-            // Ex: "R$ 1.234,56" → "1234,56"
-            var valorLimpo = valor
-                .Replace("R$", "")
-                .Replace(" ", "")
-                .Replace(".", "")   // Remove pontos de milhar
-                .Replace(",", ".")  // Vírgula decimal → ponto
-                .Trim();
+            // Remove "R$", espaços
+            valor = valor.Replace("R$", "").Replace(" ", "").Trim();
 
-            // Agora "1234,56" virou "1234.56" (formato universal)
-            if (decimal.TryParse(valorLimpo, NumberStyles.Any, CultureInfo.InvariantCulture, out var resultado))
+            // Remove pontos de milhar ANTES de converter vírgula
+            // Mas só remove pontos se houver vírgula (indica formato pt-BR: "1.234,56")
+            if (valor.Contains(","))
+            {
+                valor = valor.Replace(".", "").Replace(",", ".");
+            }
+            // Se NÃO tiver vírgula, assume que é formato universal (0.2, 1234.56)
+
+            if (decimal.TryParse(valor, NumberStyles.Any, CultureInfo.InvariantCulture, out var resultado))
             {
                 bindingContext.Result = ModelBindingResult.Success(resultado);
                 return Task.CompletedTask;

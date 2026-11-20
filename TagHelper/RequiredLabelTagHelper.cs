@@ -1,26 +1,24 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Mvc.TagHelpers;
+﻿using Microsoft.AspNetCore.Mvc.TagHelpers;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 
 namespace BrasaBot.TagHelpers
 {
     [HtmlTargetElement("label", Attributes = ForAttributeName)]
-    public class RequiredLabelTagHelper : LabelTagHelper
+    public class RequiredLabelTagHelper : TagHelper
     {
         private const string ForAttributeName = "asp-for";
 
-        public RequiredLabelTagHelper(IHtmlGenerator generator) : base(generator) { }
+        [HtmlAttributeName(ForAttributeName)]
+        public ModelExpression For { get; set; } = null!;
 
-        public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
+        public override void Process(TagHelperContext context, TagHelperOutput output)
         {
-            // Deixa o LabelTagHelper processar normalmente
-            await base.ProcessAsync(context, output);
-
-            // Depois verifica se a propriedade é obrigatória
+            var isRequired = For?.ModelExplorer?.Metadata?.IsRequired == true;
+            Console.WriteLine($">>> Label: {For?.Name}, IsRequired: {isRequired}");
+            // Se o campo é obrigatório, adiciona a classe
             if (For?.ModelExplorer?.Metadata?.IsRequired == true)
             {
-                // Adiciona a classe "required" no label
                 var classes = output.Attributes.FirstOrDefault(a => a.Name == "class")?.Value?.ToString() ?? "";
                 output.Attributes.SetAttribute("class", $"{classes} required".Trim());
             }

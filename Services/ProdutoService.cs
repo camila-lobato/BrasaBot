@@ -1,6 +1,8 @@
-﻿using BrasaBot.Models;
+﻿using BrasaBot.Data;
+using BrasaBot.Models;
 using BrasaBot.Repositories.Interfaces;
 using BrasaBot.Services.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace BrasaBot.Services
 {
@@ -8,11 +10,13 @@ namespace BrasaBot.Services
     {
         private readonly IProdutoRepository _produtoRepository;
         private readonly IWebHostEnvironment _environment;
+        private readonly AppDbContext _context;
 
-        public ProdutoService(IProdutoRepository produtoRepository, IWebHostEnvironment environment)
+        public ProdutoService(IProdutoRepository produtoRepository, IWebHostEnvironment environment, AppDbContext context)
         {
             _produtoRepository = produtoRepository;
             _environment = environment;
+            _context = context;
         }
 
         public async Task<List<Produto>> ObterTodosAsync()
@@ -90,5 +94,32 @@ namespace BrasaBot.Services
             // Caminho relativo que será salvo no banco (para uso no <img src="">)
             return $"/uploads/produtos/{nomeArquivo}";
         }
+
+        public async Task<List<ProdutoInsumo>> ObterInsumosDoProdutoAsync(int produtoId)
+        {
+            return await _context.ProdutoInsumos
+                .Include(pi => pi.Insumo)
+                .Where(pi => pi.ProdutoId == produtoId)
+                .ToListAsync();
+        }
+
+        public async Task SalvarInsumosDoProdutoAsync(int produtoId, List<ProdutoInsumo> insumos)
+        {
+            // Remove os existentes
+            var existentes = await _context.ProdutoInsumos
+                .Where(pi => pi.ProdutoId == produtoId)
+                .ToListAsync();
+            _context.ProdutoInsumos.RemoveRange(existentes);
+
+            // Adiciona os novos
+            foreach (var insumo in insumos)
+            {
+                insumo.ProdutoId = produtoId;
+                await _context.ProdutoInsumos.AddAsync(insumo);
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
     }
 }
