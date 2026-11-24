@@ -1,0 +1,44 @@
+﻿@model BrasaBot.ViewModels.RelatorioProdutosViewModel
+
+<div class="relatorio-impressao">
+    <div class="mb-4">
+        <h5 class="mb-1">Relatório de Produtos</h5>
+        <small class="text-muted">
+            Emitido em: @DateTime.Now.ToString("dd/MM/yyyy HH:mm") |
+            Período: @Model.DataInicial.ToString("dd/MM/yyyy") a @Model.DataFinal.ToString("dd/MM/yyyy") |
+            Filtro: @Model.Filtro |
+            Usuário: @Model.UsuarioEmissor
+        </small>
+    </div>
+
+    <table class="table table-sm table-bordered align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>ID</th>
+                <th>Produto</th>
+                <th>Categoria</th>
+                <th class="text-end">Qtd. Vendida</th>
+                <th class="text-end">Receita Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (!Model.Itens.Any())
+            {
+                <tr><td colspan="5" class="text-center text-muted">Nenhum produto vendido no período.</td></tr>
+            }
+            else
+            {
+                foreach (var i in Model.Itens)
+                {
+                    <tr>
+                        <td>@i.Id</td>
+                        <td>@i.Produto</td>
+                        <td>@i.Categoria</td>
+                        <td class="text-end">@i.QuantidadeVendida</td>
+                        <td class="text-end">@i.ReceitaTotal.ToString("C")</td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>

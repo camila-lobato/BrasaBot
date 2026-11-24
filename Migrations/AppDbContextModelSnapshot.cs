@@ -169,6 +169,9 @@ namespace BrasaBot.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime>("DataCadastro")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<string>("Descricao")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -178,7 +181,7 @@ namespace BrasaBot.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("varchar(20)");
 
-                    b.Property<int>("FornecedorId")
+                    b.Property<int?>("FornecedorId")
                         .HasColumnType("int");
 
                     b.Property<string>("Observacao")
@@ -597,6 +600,42 @@ namespace BrasaBot.Migrations
                     b.ToTable("ProdutoInsumos");
                 });
 
+            modelBuilder.Entity("BrasaBot.Models.RelatorioEmitido", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("DataEmissao")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("DataFinal")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("DataInicial")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Filtro")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("TipoRelatorio")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<int>("UsuarioId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UsuarioId");
+
+                    b.ToTable("RelatoriosEmitidos");
+                });
+
             modelBuilder.Entity("BrasaBot.Models.Servico", b =>
                 {
                     b.Property<int>("Id")
@@ -681,9 +720,7 @@ namespace BrasaBot.Migrations
                 {
                     b.HasOne("BrasaBot.Models.Fornecedor", "Fornecedor")
                         .WithMany("Despesas")
-                        .HasForeignKey("FornecedorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("FornecedorId");
 
                     b.Navigation("Fornecedor");
                 });
@@ -818,6 +855,17 @@ namespace BrasaBot.Migrations
                     b.Navigation("Insumo");
 
                     b.Navigation("Produto");
+                });
+
+            modelBuilder.Entity("BrasaBot.Models.RelatorioEmitido", b =>
+                {
+                    b.HasOne("BrasaBot.Models.Usuario", "Usuario")
+                        .WithMany()
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Usuario");
                 });
 
             modelBuilder.Entity("BrasaBot.Models.Usuario", b =>

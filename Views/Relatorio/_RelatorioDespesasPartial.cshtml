@@ -1,0 +1,67 @@
+﻿@model BrasaBot.ViewModels.RelatorioDespesasViewModel
+
+<div class="relatorio-impressao">
+    <div class="mb-4">
+        <h5 class="mb-1">Relatório de Despesas</h5>
+        <small class="text-muted">
+            Emitido em: @DateTime.Now.ToString("dd/MM/yyyy HH:mm") |
+            Período: @Model.DataInicial.ToString("dd/MM/yyyy") a @Model.DataFinal.ToString("dd/MM/yyyy") |
+            Filtro: @Model.Filtro |
+            Usuário: @Model.UsuarioEmissor
+        </small>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="border rounded p-3">
+                <small class="text-muted">Total do Período</small>
+                <h4 class="mb-0">@Model.TotalPeriodo.ToString("C")</h4>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="border rounded p-3">
+                <small class="text-muted">Total Pago</small>
+                <h4 class="mb-0 text-success">@Model.TotalPago.ToString("C")</h4>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="border rounded p-3">
+                <small class="text-muted">Total Pendente</small>
+                <h4 class="mb-0 text-warning">@Model.TotalPendente.ToString("C")</h4>
+            </div>
+        </div>
+    </div>
+
+    <table class="table table-sm table-bordered align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>Data</th>
+                <th>Categoria</th>
+                <th>Funcionário</th>
+                <th>Vencimento</th>
+                <th class="text-end">Valor</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (!Model.Itens.Any())
+            {
+                <tr><td colspan="6" class="text-center text-muted">Nenhuma despesa no período.</td></tr>
+            }
+            else
+            {
+                foreach (var i in Model.Itens)
+                {
+                    <tr>
+                        <td>@i.Data.ToString("dd/MM/yyyy")</td>
+                        <td>@i.Categoria</td>
+                        <td>@i.Funcionario</td>
+                        <td>@i.Vencimento.ToString("dd/MM/yyyy")</td>
+                        <td class="text-end">@i.Valor.ToString("C")</td>
+                        <td>@i.Status</td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>

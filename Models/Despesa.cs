@@ -16,7 +16,7 @@ namespace BrasaBot.Models
 
         [Required]
         [StringLength(20)]
-        public string Status { get; set; } = string.Empty;
+        public string Status { get; set; } = "A Pagar";   // "A Pagar" ou "Pago"
 
         [StringLength(20)]
         public string? FormaPagamento { get; set; }
@@ -24,8 +24,9 @@ namespace BrasaBot.Models
         [StringLength(255)]
         public string? Observacao { get; set; }
 
-        public int FornecedorId { get; set; }
+        public int? FornecedorId { get; set; }
 
-        public virtual Fornecedor Fornecedor { get; set; } = null!;
+        public virtual Fornecedor? Fornecedor { get; set; }
+        public DateTime DataCadastro { get; set; } = DateTime.Now;
     }
 }

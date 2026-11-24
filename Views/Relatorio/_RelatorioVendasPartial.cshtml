@@ -1,0 +1,73 @@
+﻿@model BrasaBot.ViewModels.RelatorioVendasViewModel
+
+<div class="relatorio-impressao">
+    <div class="mb-4">
+        <h5 class="mb-1">Relatório de Vendas</h5>
+        <small class="text-muted">
+            Emitido em: @DateTime.Now.ToString("dd/MM/yyyy HH:mm") |
+            Período: @Model.DataInicial.ToString("dd/MM/yyyy") a @Model.DataFinal.ToString("dd/MM/yyyy") |
+            Filtro: @Model.Filtro |
+            Usuário: @Model.UsuarioEmissor
+        </small>
+    </div>
+
+    <!-- Indicadores -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="border rounded p-3">
+                <small class="text-muted">Total de Vendas</small>
+                <h4 class="mb-0">@Model.TotalVendas.ToString("C")</h4>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="border rounded p-3">
+                <small class="text-muted">Total de Pedidos</small>
+                <h4 class="mb-0">@Model.TotalPedidos</h4>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="border rounded p-3">
+                <small class="text-muted">Ticket Médio</small>
+                <h4 class="mb-0">@Model.TicketMedio.ToString("C")</h4>
+            </div>
+        </div>
+    </div>
+
+    <!-- Grade -->
+    <table class="table table-sm table-bordered align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>Data</th>
+                <th>Detalhes</th>
+                <th>Funcionário</th>
+                <th>Forma Pgto.</th>
+                <th>Tipo</th>
+                <th class="text-end">Valor</th>
+                <th class="text-end">Desconto</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (!Model.Itens.Any())
+            {
+                <tr><td colspan="8" class="text-center text-muted">Nenhuma venda no período.</td></tr>
+            }
+            else
+            {
+                foreach (var i in Model.Itens)
+                {
+                    <tr>
+                        <td>@i.Data.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>@i.Detalhes</td>
+                        <td>@i.Funcionario</td>
+                        <td>@i.FormaPagamento</td>
+                        <td>@i.TipoPedido</td>
+                        <td class="text-end">@i.Valor.ToString("C")</td>
+                        <td class="text-end">@i.Desconto.ToString("C")</td>
+                        <td>@i.Status</td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>

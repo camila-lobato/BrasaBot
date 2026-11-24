@@ -115,3 +115,12 @@ label.required::after {
     color: #dc3545;
     font-weight: bold;
 }
+
+/* Card de relatório selecionado */
+.relatorio-card.selecionado {
+    border: 2px solid #1B2E21;
+    background-color: #d1e7dd;
+}
+
+
+

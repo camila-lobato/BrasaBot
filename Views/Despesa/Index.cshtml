@@ -1,0 +1,247 @@
+﻿@model BrasaBot.ViewModels.DespesaIndexViewModel
+
+@{
+    ViewData["Title"] = "Despesas";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="mb-0">Despesas</h2>
+        <small class="text-muted">Gerencie as contas a pagar.</small>
+    </div>
+    <button type="button" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#modalNovaDespesa">
+        <i class="bi bi-plus-lg"></i> Nova Despesa
+    </button>
+</div>
+
+@if (TempData["Sucesso"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show">@TempData["Sucesso"] <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+}
+@if (TempData["Erro"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show">@TempData["Erro"] <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+}
+
+@if (!Model.Caixas.Any())
+{
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle"></i>
+        Não há caixa aberto. Abra o caixa antes de pagar despesas.
+        <a asp-controller="Caixa" asp-action="Index" class="alert-link">Ir para o Caixa</a>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<!-- Indicadores -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card p-3">
+            <small class="text-muted">Total de Despesas</small>
+            <h4 class="mb-0">@Model.TotalDespesas.ToString("C")</h4>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card p-3">
+            <small class="text-muted">Despesas Pendentes</small>
+            <h4 class="mb-0 text-warning">@Model.TotalPendente.ToString("C")</h4>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card p-3">
+            <small class="text-muted">Despesas Pagas</small>
+            <h4 class="mb-0 text-success">@Model.TotalPago.ToString("C")</h4>
+        </div>
+    </div>
+</div>
+
+<!-- Grade -->
+<div class="card p-3">
+    <table class="table table-hover align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>Data</th>
+                <th>Detalhes</th>
+                <th>Forma de Pagamento</th>
+                <th>Valor</th>
+                <th>Status</th>
+                <th>Vencimento</th>
+                <th class="text-center">Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (!Model.Despesas.Any())
+            {
+                <tr><td colspan="7" class="text-center text-muted">Nenhuma despesa cadastrada.</td></tr>
+            }
+            else
+            {
+                foreach (var d in Model.Despesas)
+                {
+                    <tr>
+                        <td>@d.Vencimento.ToString("dd/MM/yyyy")</td>
+                        <td>@d.Descricao</td>
+                        <td>@(d.FormaPagamento ?? "-")</td>
+                        <td>@d.Valor.ToString("C")</td>
+                        <td>
+                            <span class="badge @(d.Status == "Pago" ? "bg-success" : "bg-warning text-dark")">
+                                @d.Status
+                            </span>
+                        </td>
+                        <td>@d.Vencimento.ToString("dd/MM/yyyy")</td>
+                        <td class="text-center">
+                            @if (d.Status == "A Pagar")
+                            {
+                                @if (Model.Caixas.Any())
+                                {
+                                    <button type="button" class="btn btn-sm btn-dark"
+                                            data-bs-toggle="modal" data-bs-target="#modalPagar"
+                                            data-id="@d.Id" data-descricao="@d.Descricao"
+                                            data-valor="@d.Valor" data-vencimento="@d.Vencimento.ToString("yyyy-MM-dd")">
+                                        Pagar
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button type="button" class="btn btn-sm btn-dark" disabled
+                                            title="Abra o caixa antes de pagar">
+                                        Pagar
+                                    </button>
+                                }
+                            }
+                            else
+                            {
+                                <span class="badge bg-success">PAGO</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal Nova Despesa -->
+<div class="modal fade" id="modalNovaDespesa" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <form asp-action="Cadastrar" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-header">
+                    <h5 class="modal-title">Nova Despesa</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label class="form-label">Descrição *</label>
+                            <input name="Descricao" class="form-control" required />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Valor *</label>
+                            <input name="Valor" type="text" class="form-control mask-money" required />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Vencimento *</label>
+                            <input name="Vencimento" type="date" class="form-control" required />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Status</label>
+                            <select name="Status" class="form-select">
+                                <option value="A Pagar">A Pagar</option>
+                                <option value="Pago">Pago</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Forma de Pagamento</label>
+                            <select name="FormaPagamento" class="form-select">
+                                <option value="">-- Selecione --</option>
+                                <option value="Dinheiro">Dinheiro</option>
+                                <option value="Crédito">Crédito</option>
+                                <option value="Débito">Débito</option>
+                                <option value="PIX">PIX</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Fornecedor</label>
+                            <select name="FornecedorId" asp-items="Model.Fornecedores" class="form-select">
+                                <option value="">-- Selecione --</option>
+                            </select>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">Observações</label>
+                            <textarea name="Observacao" class="form-control" rows="2"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-dark">Confirmar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Pagar -->
+<div class="modal fade" id="modalPagar" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form asp-action="Pagar" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="DespesaId" id="pagarDespesaId" />
+                <input type="hidden" name="Descricao" id="pagarDescricao" />
+                <input type="hidden" name="Valor" id="pagarValor" />
+                <input type="hidden" name="Vencimento" id="pagarVencimento" />
+                <div class="modal-header">
+                    <h5 class="modal-title">Pagar Despesa</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Descrição</label>
+                        <input class="form-control" id="pagarDescricaoView" disabled />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Valor</label>
+                        <input class="form-control" id="pagarValorView" disabled />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Forma de Pagamento</label>
+                        <select name="FormaPagamento" class="form-select" required>
+                            <option value="Dinheiro">Dinheiro</option>
+                            <option value="Crédito">Crédito</option>
+                            <option value="Débito">Débito</option>
+                            <option value="PIX">PIX</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Caixa</label>
+                        <select name="CaixaId" asp-items="Model.Caixas" class="form-select" required>
+                            <option value="">-- Selecione --</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-dark">Confirmar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        var modalPagar = document.getElementById('modalPagar');
+        modalPagar.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget;
+            document.getElementById('pagarDespesaId').value = button.getAttribute('data-id');
+            document.getElementById('pagarDescricao').value = button.getAttribute('data-descricao');
+            document.getElementById('pagarValor').value = button.getAttribute('data-valor');
+            document.getElementById('pagarVencimento').value = button.getAttribute('data-vencimento');
+            document.getElementById('pagarDescricaoView').value = button.getAttribute('data-descricao');
+            document.getElementById('pagarValorView').value = button.getAttribute('data-valor');
+        });
+    </script>
+}

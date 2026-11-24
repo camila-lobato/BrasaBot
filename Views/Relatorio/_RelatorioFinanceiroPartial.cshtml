@@ -1,0 +1,39 @@
+﻿@model BrasaBot.ViewModels.RelatorioFinanceiroViewModel
+
+<div class="relatorio-impressao">
+    <div class="mb-4">
+        <h5 class="mb-1">Relatório Financeiro</h5>
+        <small class="text-muted">
+            Emitido em: @DateTime.Now.ToString("dd/MM/yyyy HH:mm") |
+            Período: @Model.DataInicial.ToString("dd/MM/yyyy") a @Model.DataFinal.ToString("dd/MM/yyyy") |
+            Usuário: @Model.UsuarioEmissor
+        </small>
+    </div>
+
+    <table class="table table-borderless">
+        <tbody>
+            <tr class="border-bottom">
+                <td class="fw-bold">Faturamento Bruto</td>
+                <td class="text-end fs-4 text-success">@Model.FaturamentoBruto.ToString("C")</td>
+            </tr>
+            <tr class="border-bottom">
+                <td class="fw-bold">Total de Despesas</td>
+                <td class="text-end fs-4 text-danger">@Model.TotalDespesas.ToString("C")</td>
+            </tr>
+            <tr class="border-bottom">
+                <td class="fw-bold">Lucro Bruto</td>
+                <td class="text-end fs-4 @(Model.LucroBruto >= 0 ? "text-success" : "text-danger")">
+                    @Model.LucroBruto.ToString("C")
+                </td>
+            </tr>
+            <tr class="border-bottom">
+                <td class="fw-bold">Total de Pedidos</td>
+                <td class="text-end fs-4">@Model.TotalPedidos</td>
+            </tr>
+            <tr>
+                <td class="fw-bold">Ticket Médio</td>
+                <td class="text-end fs-4">@Model.TicketMedio.ToString("C")</td>
+            </tr>
+        </tbody>
+    </table>
+</div>

@@ -26,6 +26,7 @@ namespace BrasaBot.Data
         public DbSet<MovimentacaoCaixa> MovimentacoesCaixa { get; set; }
         public DbSet<Despesa> Despesas { get; set; }
         public DbSet<MovimentacaoEstoque> MovimentacoesEstoque { get; set; }
+        public DbSet<RelatorioEmitido> RelatoriosEmitidos { get; set; }
 
         public DbSet<Cargo> Cargos { get; set; }
 
@@ -116,6 +117,12 @@ namespace BrasaBot.Data
 
             modelBuilder.Entity<MovimentacaoEstoque>()
                 .Property(m => m.Quantidade).HasPrecision(10, 2);
+
+            modelBuilder.Entity<RelatorioEmitido>()
+                .HasOne(r => r.Usuario)
+                .WithMany()
+                .HasForeignKey(r => r.UsuarioId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

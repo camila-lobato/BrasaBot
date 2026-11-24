@@ -1,0 +1,71 @@
+﻿@model BrasaBot.ViewModels.RelatorioCaixaViewModel
+
+<div class="relatorio-impressao">
+    <div class="mb-4">
+        <h5 class="mb-1">Relatório de Caixa</h5>
+        <small class="text-muted">
+            Emitido em: @DateTime.Now.ToString("dd/MM/yyyy HH:mm") |
+            Período: @Model.DataInicial.ToString("dd/MM/yyyy") a @Model.DataFinal.ToString("dd/MM/yyyy") |
+            Filtro: @Model.Filtro |
+            Usuário: @Model.UsuarioEmissor
+        </small>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="border rounded p-3">
+                <small class="text-muted">Total de Entradas</small>
+                <h4 class="mb-0 text-success">@Model.TotalEntradas.ToString("C")</h4>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="border rounded p-3">
+                <small class="text-muted">Total de Saídas</small>
+                <h4 class="mb-0 text-danger">@Model.TotalSaidas.ToString("C")</h4>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="border rounded p-3">
+                <small class="text-muted">Saldo Final</small>
+                <h4 class="mb-0">@Model.SaldoFinal.ToString("C")</h4>
+            </div>
+        </div>
+    </div>
+
+    <table class="table table-sm table-bordered align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>Data</th>
+                <th>Hora</th>
+                <th>Detalhes</th>
+                <th>Forma Pgto.</th>
+                <th class="text-end">Valor</th>
+                <th class="text-end">Desconto</th>
+                <th>Tipo</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (!Model.Itens.Any())
+            {
+                <tr><td colspan="7" class="text-center text-muted">Nenhuma movimentação no período.</td></tr>
+            }
+            else
+            {
+                foreach (var i in Model.Itens)
+                {
+                    <tr>
+                        <td>@i.Data.ToString("dd/MM/yyyy")</td>
+                        <td>@i.Hora</td>
+                        <td>@i.Detalhes</td>
+                        <td>@i.FormaPagamento</td>
+                        <td class="text-end @(i.Tipo == "Entrada" ? "text-success" : "text-danger")">
+                            @i.Valor.ToString("C")
+                        </td>
+                        <td class="text-end">@i.Desconto.ToString("C")</td>
+                        <td>@i.Tipo</td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>

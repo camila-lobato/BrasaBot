@@ -34,10 +34,10 @@
                 </a>
                 @if (User.IsInRole("Administrador"))
                 {
-                    <a class="nav-link text-white" href="#">
+                    <a class="nav-link text-white" asp-controller="Despesa" asp-action="Index">
                         <i class="bi bi-receipt"></i> Despesas
                     </a>
-                    <a class="nav-link text-white" href="#">
+                    <a class="nav-link text-white" asp-controller="Relatorio" asp-action="Index">
                         <i class="bi bi-file-earmark-bar-graph"></i> Relatórios
                     </a>
                 }
@@ -100,6 +100,7 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-maskmoney/3.0.2/jquery.maskMoney.min.js"></script>
